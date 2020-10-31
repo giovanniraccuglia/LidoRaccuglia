@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Prodotto;
-import com.raccuglia.model.Utente;
 
 /**
  * Servlet implementation class MenùServlet
@@ -27,15 +26,7 @@ public class MenuServlet extends HttpServlet {
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Utente utente = (Utente) request.getSession().getAttribute("utente");
-		if(utente != null) {
-			if(utente.getRuolo().equals("Cliente")) {
-				//da completare
-			}else
-				response.sendRedirect(request.getContextPath());
-		}else {
-			response.sendRedirect(request.getContextPath());
-		}
+		response.sendRedirect(request.getContextPath());
 	}
 
 	/**
@@ -43,16 +34,7 @@ public class MenuServlet extends HttpServlet {
 	 */
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Utente utente = (Utente) request.getSession().getAttribute("utente");
-		if(utente != null) {
-			if(utente.getRuolo().equals("Cliente")) {
-				//da completare
-			}else {
-				menuPage(request, response);
-			}
-		}else {
-			menuPage(request, response);
-		}
+		menuPage(request, response);
 	}
 	
 	private void menuPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

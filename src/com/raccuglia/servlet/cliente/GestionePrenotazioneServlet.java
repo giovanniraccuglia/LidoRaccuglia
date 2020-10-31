@@ -17,6 +17,7 @@ import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Postazione;
 import com.raccuglia.model.Prenotazione;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.InvioEmail;
 
 /**
  * Servlet implementation class GestionePrenotazioneServlet
@@ -109,11 +110,15 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 				for(int i = 0; i < idPostazioni.length; i++) {
 					postazioniSelezionate.add(DBMS.getPostazioneToId(Integer.parseInt(idPostazioni[i])));
 				}
-				List<Postazione> postazioniNonPrenotabili = DBMS.getPostazioniDisabilitate();
-				postazioniNonPrenotabili.addAll(DBMS.getPostazioniPrenotate(dataPrenotazione));
+				List<Postazione> postazioniNonPrenotabili = DBMS.getPostazioniPrenotate(dataPrenotazione);
 				if(checkPostazioni(postazioniSelezionate, postazioniNonPrenotabili) == false) {
 					int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
+					String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
 					DBMS.inserisciPrenotazione(dataPrenotazione, getTotale(postazioniSelezionate), idUtente, postazioniSelezionate);
+					SimpleDateFormat sdf1 = new SimpleDateFormat("dd-MM-yyyy");
+					String oggetto = "MARRAKECH BEACH";
+					String messaggio = "Gentile Cliente, La informiamo che la sua prenotazione per la data: " + sdf1.format(dataPrenotazione) + " è avvenuta con successo. Le auguriamo una buona permanenza in struttura.";
+					InvioEmail.sendEmail(email, messaggio, oggetto);
 					status = "{\"PRENOTATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Pronotazione effettuata correttamente.\"}";
 				}else {
 					status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Una o più postazioni sono già prenotate.\"}";

@@ -59,16 +59,16 @@
          <div class="row">
             <!-- Info Account-->
             <%@ include file="/WEB-INF/generale/infoAccount.jsp"%>
-            <!-- Inserire Funzionalità -->
+            <!-- Funzionalità -->
             <div class="col-sm-8" style="padding-left: 3%">
                <!-- Storico Prenotazioni -->
                <div>
-                  <br>
+                  <br><br>
                   <!-- Modal Form Nuova Prenotazione -->
                   <a id="linkNuovaPrenotazione" href="" class="btn bg-info" data-toggle="modal" data-target="#modalNuovaPrenotazione" style="font-style: normal; color: whitesmoke"><i class="fa fa-plus"></i> Prenota</a>
-                  <!-- Modal Prenotazione-->
+                  <!-- Modal Prenotazione -->
                   <%@ include file="/WEB-INF/Cliente/nuovaPrenotazione.jsp"%>
-                  <!-- Modal Pagamento-->
+                  <!-- Modal Pagamento -->
                   <%@ include file="/WEB-INF/Cliente/pagamento.jsp"%>
                   <!-- Tabella Prenotazioni -->
                   <div style="font-style: normal">
@@ -90,7 +90,7 @@
                         </table>
                      </div>
                   </div>
-                  <!-- The Modal Visualizza Prenotazione-->
+                  <!-- The Modal Visualizza Prenotazione -->
                   <div class="modal fade" id="modalVisualizzaPrenotazione">
                      <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -100,6 +100,47 @@
                            </div>
                            <div class="modal-footer">
                               <button id="closeVisualizzaPrenotazione" type="button" class="btn btn-secondary" data-dismiss="modal" style="font-style: normal"><i class="fa fa-close"></i> close</button>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!-- Storico Ordini -->
+               <div>
+                  <br>
+                  <!-- Modal Form Nuovo Ordine -->
+                  <a id="linkNuovoOrdine" href="" class="btn bg-info" data-toggle="modal" data-target="#modalNuovoOrdine" style="font-style: normal; color: whitesmoke"><i class="fa fa-plus"></i> Ordina</a>
+                  <!-- Modal Ordine -->
+                  <%@ include file="/WEB-INF/Cliente/nuovoOrdine.jsp"%>
+                  <!-- Tabella Ordini -->
+                  <div style="font-style: normal">
+                     <br>
+                     <div id="divAlertOrdine" style="font-style: normal"></div>
+                     <div class="table-responsive table-wrapper-scroll-y my-custom-scrollbar">
+                        <table class="table table-hover">
+                           <thead class="table-info">
+                              <tr>
+                                 <th>Data</th>
+                                 <th>Status</th>
+                                 <th></th>
+                              </tr>
+                           </thead>
+                           <tbody id="tableOrdini">
+                              <!-- Record Ordini -->
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+                  <!-- The Modal Visualizza Ordine -->
+                  <div class="modal fade" id="modalVisualizzaOrdine">
+                     <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                           <!-- Modal body -->
+                           <div id="modalBodyVisualizzaOrdine" class="modal-body w3-opacity">
+                              <!-- Info Ordine -->
+                           </div>
+                           <div class="modal-footer">
+                              <button id="closeVisualizzaOrdine" type="button" class="btn btn-secondary" data-dismiss="modal" style="font-style: normal"><i class="fa fa-close"></i> close</button>
                            </div>
                         </div>
                      </div>

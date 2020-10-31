@@ -49,13 +49,9 @@ function updateMappa() {
 }
 
 function setPostazioni(data) {
-	$.each(data[0], function (key, val) {
-		let str1 = '<div class="postazione" id="postazione' + val.idPostazione + '" style="background-color: lightgrey"><a class="btn"><img src="img/postazione.png" style="width: 40px; height: 40px;"></a></div>';
-		$('#postazione' + val.idPostazione).html(str1);
-	});
-	$.each(data[1], function (key, val) {
-		let str1 = '<div class="postazione" id="postazione' + val.idPostazione + '" style="background-color: lightcoral"><a class="btn"><img src="img/postazione.png" style="width: 40px; height: 40px;"></a></div>';
-		$('#postazione' + val.idPostazione).html(str1);
+	$.each(data, function (key, val) {
+		let str = '<div class="postazione" id="postazione' + val.idPostazione + '" style="background-color: lightcoral"><a class="btn"><img src="img/postazione.png" style="width: 40px; height: 40px;"></a></div>';
+		$('#postazione' + val.idPostazione).html(str);
 	});
 }
 

@@ -3,17 +3,17 @@
 <!DOCTYPE html>
 <html lang="it">
    <head>
-      <script src="js/generale/menu.js"></script>
    </head>
    <body>
       <!-- Menu -->
       <!-- Modal -->
-      <div class="modal fade" id="modalMenu">
+      <div class="modal fade" id="modalNuovoOrdine">
          <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                <!-- Modal Header -->
                <div class="modal-header">
-                  <h2 class="modal-title w3-opacity">Menù</h2>
+                  <div id="divAlertNuovoOrdine" style="font-style: normal"></div>
+                  <h2 class="modal-title w3-opacity">Ordina</h2>
                   <!-- Button for category -->
                   <div class="btn-group" style="font-style: normal; align-self: center">
                      <div class="btn-group">
@@ -53,12 +53,13 @@
                   </div>
                </div>
                <!-- Modal body -->
-               <div id="divMenu" class="modal-body">
+               <div id="divNuovoOrdine" class="modal-body">
                   <!-- Table Menù -->
                </div>
                <!-- Modal footer -->
                <div class="modal-footer" style="font-style: normal">
-                  <button id="closeMenu" type="button" class="btn btn-secondary" data-dismiss="modal" ><i class="fa fa-close"></i> close</button>
+                  <button id="closeNuovoOrdine" type="button" class="btn btn-secondary" data-dismiss="modal" ><i class="fa fa-close"></i> close</button>
+                  <button id="nuovaNuovoOrdine" class="btn bg-info active" value="nuovoOrdine" style="font-style: normal; color: white"><i class="fa fa-shopping-cart"></i> ordina</button>
                </div>
             </div>
          </div>

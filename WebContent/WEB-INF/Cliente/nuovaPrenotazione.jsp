@@ -53,8 +53,7 @@
                      <div class="left">
                         <h4>Legenda</h4>
                         <i class="fa fa-square" aria-hidden="true" style="color: #F2D16B; text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;"></i><small class="w3-opacity"> Libero</small><br>
-                        <i class="fa fa-square" aria-hidden="true" style="color: lightcoral; text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;"></i><small class="w3-opacity"> Prenotato</small><br>
-                        <i class="fa fa-square" aria-hidden="true" style="color: lightgray; text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;"></i><small class="w3-opacity"> Non Prenotabile</small><br>
+                        <i class="fa fa-square" aria-hidden="true" style="color: lightcoral; text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;"></i><small class="w3-opacity"> Occupato</small><br>
                         <br><small class="w3-opacity">NB. Ogni singola postazione è comprensiva di 2 sdraio e 1 ombrellone.</small>
                      </div>
                      <div class="right">

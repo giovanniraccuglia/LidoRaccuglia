@@ -63,7 +63,7 @@
             <div class="col-sm-8" style="padding-left: 3%">
                <!-- Lista Dipendenti -->
                <div>
-                  <br>
+                  <br><br>
                   <!-- Modal Form Nuovo Dipendente -->
                   <a href="" class="btn bg-info" data-toggle="modal" data-target="#modalNuovoDipendente" style="font-style: normal; color: whitesmoke"><i class="fa fa-plus"></i> Dipendente</a>
                   <!-- The Modal -->
@@ -157,11 +157,11 @@
                                  <div class="form-group">
                                     <label class="w3-opacity" for="categoria">Categoria:</label>
                                     <select class="form-control" id="categoriaNuovoProdotto" name="categoria">
-                                       <option>Colazione Bar</option>
-                                       <option>Panini Bar</option>
-                                       <option>Rustici Bar</option>
-                                       <option>Insalatone Bar</option>
-                                       <option>Frutta e Dessert Bar</option>
+                                       <option>Colazione</option>
+                                       <option>Panini</option>
+                                       <option>Rustici</option>
+                                       <option>Insalatone</option>
+                                       <option>Frutta e Dessert</option>
                                        <option>Antipasti Di Mare</option>
                                        <option>Antipasti Di Terra</option>
                                        <option>Primi Di Mare</option>

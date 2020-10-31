@@ -1,24 +1,29 @@
 $(document).ready(function () {
-	
+
 	let date = new Date(),
-	dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+		dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
 	$("#date").val(dformat);
 	$('input[type="date"]').prop('min', dformat);
-	
+
 	updateMappa();
-	
-	$('#date').change(function() {
+
+	$('#date').change(function () {
+		$('[data-toggle="popover"]').popover('hide');
 		updateMappa();
 	});
-	
-	setInterval(function(){
-    	updateMappa();
-    }, 300000); //richiesta ogni 3 minuti
-	
+
+	setInterval(function () {
+		updateMappa();
+	}, 300000); //richiesta ogni 3 minuti
+
+});
+
+$(document).ajaxComplete(function () {
+	$('[data-toggle="popover"]').popover();
 });
 
 function updateMappa() {
-	if($('#date').val() != null) {
+	if ($('#date').val() != null) {
 		$.ajax({
 			url: './areaUtente',
 			dataType: 'json',
@@ -34,19 +39,18 @@ function updateMappa() {
 				console.log(errorThrown);
 			}
 		});
-	}else {
+	} else {
 		buildMappa();
 	}
 }
 
 function setPostazioni(data) {
+	let i = 0;
 	$.each(data[0], function (key, val) {
-		let str1 = '<div class="postazione" id="postazione' + val.idPostazione + '" style="background-color: lightgrey"><a class="btn"><img src="img/postazione.png" style="width: 40px; height: 40px;"></a></div>';
-		$('#postazione' + val.idPostazione).html(str1);
-	});
-	$.each(data[1], function (key, val) {
-		let str1 = '<div class="postazione" id="postazione' + val.idPostazione + '" style="background-color: lightcoral"><a class="btn"><img src="img/postazione.png" style="width: 40px; height: 40px;"></a></div>';
-		$('#postazione' + val.idPostazione).html(str1);
+		let info = data[1][i].nome + ' ' + data[1][i].cognome + '\u000A' + data[1][i].cellulare + '\u000A' + data[1][i].email;
+		let str = '<div class="postazione" id="postazione' + val.idPostazione + '" style="background-color: lightcoral"><a data-toggle="popover" title="Info" data-content="' + info + '" class="btn"><img src="img/postazione.png" style="width: 40px; height: 40px;"></a></div>';
+		$('#postazione' + val.idPostazione).html(str);
+		i = i + 1;
 	});
 }
 

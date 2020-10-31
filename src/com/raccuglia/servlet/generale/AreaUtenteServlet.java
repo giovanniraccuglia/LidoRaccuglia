@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.raccuglia.DB.DBMS;
+import com.raccuglia.model.Ordine;
 import com.raccuglia.model.Postazione;
 import com.raccuglia.model.Prenotazione;
 import com.raccuglia.model.Prodotto;
@@ -63,18 +65,22 @@ public class AreaUtenteServlet extends HttpServlet {
 		Utente utente = (Utente) request.getSession().getAttribute("utente");
 		if(utente != null) {
 			if(utente.getRuolo().equals("Admin")) {
-				visualizzaProdDip(request, response);
+				visualizzaDipendentiProdotti(request, response);
 			}else if(utente.getRuolo().equals("Bagnino")) {
 				visualizzaSpiaggia(request, response);
 			}else if(utente.getRuolo().equals("Cliente")) {
-				visualizzaPrenotazioni(request, response);
+				visualizzaPrenotazioniOrdini(request, response);
+			}else if(utente.getRuolo().equals("Ristorazione")) {
+				//da completare
+			}else {
+				response.sendError(400);
 			}
 		}else {
 			response.sendRedirect(request.getContextPath());
 		}
 	}
 	
-	private void visualizzaProdDip(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void visualizzaDipendentiProdotti(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			List<Utente> listaDipendenti = DBMS.getDipendenti();
 			List<Prodotto> listaProdotti = DBMS.getListaProdotti();
@@ -88,14 +94,15 @@ public class AreaUtenteServlet extends HttpServlet {
 		}
 	}
 	
-	private void visualizzaPrenotazioni(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void visualizzaPrenotazioniOrdini(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
 			List<Prenotazione> listaPrenotazioni = DBMS.getPrenotazioni(idUtente);
+			List<Ordine> listaOrdini = DBMS.getOrdini(idUtente);
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			ObjectMapper mapper = new ObjectMapper();
-			pr.write(mapper.writeValueAsString(listaPrenotazioni));
+			pr.write("[" + mapper.writeValueAsString(listaPrenotazioni) + "," + mapper.writeValueAsString(listaOrdini) + "]");
 		}catch(Exception e) {
 			e.printStackTrace();
 			response.sendError(400);
@@ -108,12 +115,15 @@ public class AreaUtenteServlet extends HttpServlet {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			Date today = new Date(System.currentTimeMillis());
 			if(dataPrenotazione != null && (dataPrenotazione.compareTo(Date.valueOf(sdf.format(today))) == 0 || dataPrenotazione.after(Date.valueOf(sdf.format(today))))) {
-				List<Postazione> postazioniDisabilitate = DBMS.getPostazioniDisabilitate();
 				List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
+				List<Utente> utentiPrenotati = new ArrayList<>();
+				for(int i = 0; i < postazioniPrenotate.size(); i++) {
+					utentiPrenotati.add(DBMS.getUtenteFromPostazione(dataPrenotazione, postazioniPrenotate.get(i).getIdPostazione()));
+				}
 				PrintWriter pr = response.getWriter();
 				response.setContentType("application/json");
 				ObjectMapper mapper = new ObjectMapper();
-				pr.write("[" + mapper.writeValueAsString(postazioniDisabilitate) + "," + mapper.writeValueAsString(postazioniPrenotate) + "]");
+				pr.write("[" + mapper.writeValueAsString(postazioniPrenotate) + "," + mapper.writeValueAsString(utentiPrenotati) + "]");
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
