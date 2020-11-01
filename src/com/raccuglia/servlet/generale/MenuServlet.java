@@ -39,7 +39,7 @@ public class MenuServlet extends HttpServlet {
 	
 	private void menuPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			List<Prodotto> listaProdotti = DBMS.getListaProdotti();
+			List<Prodotto> listaProdotti = DBMS.getProdotti();
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			if(!listaProdotti.isEmpty()) {

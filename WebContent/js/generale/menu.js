@@ -14,7 +14,7 @@ $(document).ready(function () {
 					if (getListaCategoria(data, lista1[i]).length > 0) {
 						str += '<div id="' + lista2[j] + '"><h3 class="w3-opacity">' + lista1[i] + '</h3><table class="table table-hover"><thead></thead><tbody>';
 						$.each(getListaCategoria(data, lista1[i]), function (key, val) {
-							str += '<tr><td><strong>' + val.nome + '</strong><span style="display: block"></span><i>' + val.descrizione + '</i></td><td>' + val.prezzo + '&nbsp;&euro;</td></tr>';
+							str += '<tr><td><strong>' + val.nome + '</strong><span style="display: block"></span><i>' + val.descrizione + '</i></td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td></tr>';
 						});
 						str += '</tbody></table></div>';
 					}

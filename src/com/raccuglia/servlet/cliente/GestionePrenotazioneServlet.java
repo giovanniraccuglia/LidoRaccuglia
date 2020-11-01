@@ -108,7 +108,7 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 				String[] idPostazioni = postazioni.split(",");
 				List<Postazione> postazioniSelezionate = new ArrayList<>();
 				for(int i = 0; i < idPostazioni.length; i++) {
-					postazioniSelezionate.add(DBMS.getPostazioneToId(Integer.parseInt(idPostazioni[i])));
+					postazioniSelezionate.add(DBMS.getPostazioneFromId(Integer.parseInt(idPostazioni[i])));
 				}
 				List<Postazione> postazioniNonPrenotabili = DBMS.getPostazioniPrenotate(dataPrenotazione);
 				if(checkPostazioni(postazioniSelezionate, postazioniNonPrenotabili) == false) {
@@ -121,10 +121,10 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 					InvioEmail.sendEmail(email, messaggio, oggetto);
 					status = "{\"PRENOTATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Pronotazione effettuata correttamente.\"}";
 				}else {
-					status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Una o più postazioni sono già prenotate.\"}";
+					status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Una o pi&ugrave; postazioni sono gi&agrave; prenotate.\"}";
 				}
 			}else {
-				status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Inserire una data valida e selezionare una o più postazioni.\"}";
+				status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Inserire una data valida e selezionare una o pi&ugrave; postazioni.\"}";
 			}
 			pr.write(status);
 		}catch(Exception e) {

@@ -71,6 +71,7 @@
                </div>
                <!-- Modal footer -->
                <div class="modal-footer" style="font-style: normal">
+                  <div id="totaleNuovaPrenotazione" class="w3-opacity" style="flex: auto; padding-left: 2%"></div>
                   <button id="closeNuovaPrenotazione" type="button" class="btn btn-secondary" data-dismiss="modal" ><i class="fa fa-close"></i> close</button>
                   <button id="nuovaPrenotazione" class="btn bg-info active" value="nuovaPrenotazione" style="font-style: normal; color: white"><i class="fa fa-check"></i> prenota</button>
                </div>

@@ -12,7 +12,6 @@
             <div class="modal-content">
                <!-- Modal Header -->
                <div class="modal-header">
-                  <div id="divAlertNuovoOrdine" style="font-style: normal"></div>
                   <h2 class="modal-title w3-opacity">Ordina</h2>
                   <!-- Button for category -->
                   <div class="btn-group" style="font-style: normal; align-self: center">
@@ -52,14 +51,16 @@
                      </div>
                   </div>
                </div>
+               <div id="divAlertNuovoOrdine" style="font-style: normal; padding: 1%"></div>
                <!-- Modal body -->
                <div id="divNuovoOrdine" class="modal-body">
                   <!-- Table Menù -->
                </div>
                <!-- Modal footer -->
                <div class="modal-footer" style="font-style: normal">
+               	  <div id="totaleNuovoOrdine" class="w3-opacity" style="flex: auto; padding-left: 2%"></div>
                   <button id="closeNuovoOrdine" type="button" class="btn btn-secondary" data-dismiss="modal" ><i class="fa fa-close"></i> close</button>
-                  <button id="nuovaNuovoOrdine" class="btn bg-info active" value="nuovoOrdine" style="font-style: normal; color: white"><i class="fa fa-shopping-cart"></i> ordina</button>
+                  <button id="nuovoOrdine" class="btn bg-info active" value="nuovoOrdine" style="font-style: normal; color: white"><i class="fa fa-shopping-cart"></i> ordina</button>
                </div>
             </div>
          </div>

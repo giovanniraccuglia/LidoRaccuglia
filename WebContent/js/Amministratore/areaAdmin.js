@@ -96,7 +96,7 @@ function loadDipendentiProdotti() {
 				str1 += '<tr><td>' + val.nome + '</td><td>' + val.cognome + '</td><td>' + val.cellulare + '</td><td>' + val.email + '</td><td>' + val.ruolo + '</td><td class="text-center"><button onclick="deleteDipendente(' + val.idUtente + ')" data-id="' + val.idUtente + '" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-trash"></i></button></td></tr>';
 			});
 			$.each(data[1], function (key, val) {
-				str2 += '<tr><td><strong>' + val.nome + '</strong><span style="display: block"></span><i>' + val.descrizione + '</i></td><td>' + val.prezzo + '&nbsp;&euro;</td><td>' + val.categoria + '</td><td class="text-center"><button onclick="deleteProdotto(' + val.idProdotto + ')" data-id="' + val.idProdotto + '" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-trash"></i></button></td></tr>';
+				str2 += '<tr><td><strong>' + val.nome + '</strong><span style="display: block"></span><i>' + val.descrizione + '</i></td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td><td>' + val.categoria + '</td><td class="text-center"><button onclick="deleteProdotto(' + val.idProdotto + ')" data-id="' + val.idProdotto + '" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-trash"></i></button></td></tr>';
 			});
 			$('#tableDipendenti').html(str1);
 			$('#tableProdotti').html(str2);

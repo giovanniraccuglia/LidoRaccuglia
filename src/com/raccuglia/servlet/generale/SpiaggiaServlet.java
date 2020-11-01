@@ -46,10 +46,11 @@ public class SpiaggiaServlet extends HttpServlet {
 			Date today = new Date(System.currentTimeMillis());
 			if(dataPrenotazione != null && (dataPrenotazione.compareTo(Date.valueOf(sdf.format(today))) == 0 || dataPrenotazione.after(Date.valueOf(sdf.format(today))))) {
 				List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
+				List<Postazione> postazioni = DBMS.getPostazioni();
 				PrintWriter pr = response.getWriter();
 				response.setContentType("application/json");
 				ObjectMapper mapper = new ObjectMapper();
-				pr.write(mapper.writeValueAsString(postazioniPrenotate));
+				pr.write("[" + mapper.writeValueAsString(postazioni) + "," + mapper.writeValueAsString(postazioniPrenotate) + "]");
 			}
 		}catch(Exception e) {
 			e.printStackTrace();

@@ -107,7 +107,7 @@ public class DBMS {
     	}
     }
 	
-	public static List<Prodotto> getListaProdotti() {
+	public static List<Prodotto> getProdotti() {
     	List<Prodotto> prodotti = new ArrayList<>();
     	String query = "select * from Raccuglia.Prodotto order by categoria";
     	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
@@ -355,7 +355,22 @@ public class DBMS {
     	return postazioni;
     }
     
-    public static Postazione getPostazioneToId(int idPostazione) {
+    public static List<Postazione> getPostazioni() {
+    	List<Postazione> postazioni = new ArrayList<>();
+    	String query = "select * from Raccuglia.Postazione";
+    	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+    		ResultSet rs = statement.executeQuery();
+    		while(rs.next()) {
+    			postazioni.add(new Postazione(rs.getInt("idPostazione"), rs.getDouble("prezzo")));
+    		}
+    		rs.close();
+    	}catch(SQLException e) {
+    		printSQLException(e);
+    	}
+    	return postazioni;
+    }
+    
+    public static Postazione getPostazioneFromId(int idPostazione) {
     	Postazione postazione = null;
     	String query = "select * from Raccuglia.Postazione where idPostazione = ?";
     	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
@@ -373,7 +388,7 @@ public class DBMS {
     
     public static void inserisciPrenotazione(Date dataPrenotazione, double totale, int idUtente, List<Postazione> postazioni) {
     	int idPrenotazione = 0;
-    	String query1 = "insert into Raccuglia.Prenotazione (dataPrenotazione, totale, pagato, rimborsato, Utente_idUtente) VALUES (?, ?, ?, ?, ?)";
+    	String query1 = "insert into Raccuglia.Prenotazione (dataPrenotazione, totale, pagato, rimborsato, Utente_idUtente) values (?, ?, ?, ?, ?)";
     	try(Connection connection1  = getConnection(); PreparedStatement statement1 = connection1.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS)) {
     		statement1.setDate(1, dataPrenotazione);
     		statement1.setDouble(2, totale);
@@ -390,7 +405,7 @@ public class DBMS {
     		printSQLException(e);
     	}
     	for(int i = 0; i < postazioni.size(); i++) {
-    		String query2 = "insert into Raccuglia.Prenotazione_has_Postazione (Prenotazione_idPrenotazione, Postazione_idPostazione) VALUES (?, ?)";
+    		String query2 = "insert into Raccuglia.Prenotazione_has_Postazione (Prenotazione_idPrenotazione, Postazione_idPostazione) values (?, ?)";
     		try(Connection connection2  = getConnection(); PreparedStatement statement2 = connection2.prepareStatement(query2)) {
     			statement2.setInt(1, idPrenotazione);
     			statement2.setInt(2, postazioni.get(i).getIdPostazione());
@@ -458,6 +473,53 @@ public class DBMS {
     		printSQLException(e);
     	}
     	return ordini;
+    }
+    
+    public static Prodotto getProdottoFromId(int idProdotto) {
+    	Prodotto prodotto = null;
+    	String query = "select * from Raccuglia.Prodotto where idProdotto = ?";
+    	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+    		statement.setInt(1, idProdotto);
+    		ResultSet rs = statement.executeQuery();
+    		if(rs.next()) {
+    			prodotto = new Prodotto(rs.getInt("idProdotto"), rs.getString("nome"), rs.getString("descrizione"), rs.getDouble("prezzo"), rs.getString("categoria"));
+    		}
+    		rs.close();
+    	}catch(SQLException e) {
+        	printSQLException(e);
+        }
+    	return prodotto;
+    }
+    
+    public static void inserisciOrdine(double totale, int idUtente, List<Prodotto> prodotti, List<Integer> quantita) {
+    	int idOrdine = 0;
+    	String query1 = "insert into Raccuglia.Ordine (totale, preparato, ritirato, pagato, Utente_idUtente) values (?, ?, ?, ?, ?)";
+    	try(Connection connection1  = getConnection(); PreparedStatement statement1 = connection1.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS)) {
+    		statement1.setDouble(1, totale);
+    		statement1.setBoolean(2, false);
+    		statement1.setBoolean(3, false);
+    		statement1.setBoolean(4, true);
+    		statement1.setInt(5, idUtente);
+    		statement1.executeUpdate();
+    		ResultSet rs1 = statement1.getGeneratedKeys();
+    		if(rs1.next()) {
+    			idOrdine = rs1.getInt(1);
+    		}
+    		rs1.close();
+    	}catch(SQLException e) {
+    		printSQLException(e);
+    	}
+    	for(int i = 0; i < prodotti.size(); i++) {
+    		String query2 = "insert into Raccuglia.Ordine_has_Prodotto (Ordine_idOrdine, Prodotto_idProdotto, quantità) values (?, ?, ?)";
+    		try(Connection connection2  = getConnection(); PreparedStatement statement2 = connection2.prepareStatement(query2)) {
+    			statement2.setInt(1, idOrdine);
+    			statement2.setInt(2, prodotti.get(i).getIdProdotto());
+    			statement2.setInt(3, quantita.get(i));
+    			statement2.executeUpdate();
+    		}catch(SQLException e) {
+        		printSQLException(e);
+        	}
+    	}
     }
     
 }

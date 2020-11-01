@@ -83,7 +83,7 @@ public class AreaUtenteServlet extends HttpServlet {
 	private void visualizzaDipendentiProdotti(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			List<Utente> listaDipendenti = DBMS.getDipendenti();
-			List<Prodotto> listaProdotti = DBMS.getListaProdotti();
+			List<Prodotto> listaProdotti = DBMS.getProdotti();
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			ObjectMapper mapper = new ObjectMapper();

@@ -120,24 +120,6 @@
                </li>
             </ul>
          </div>
-         <% }else if(((Utente) request.getSession().getAttribute("utente")).getRuolo().equals("Cliente")) { %>
-         <div class="collapse navbar-collapse" id="collapsibleNavbar">
-            <ul class="navbar-nav">
-               <li class="nav-item">
-                  <a class="nav-link" href="${pageContext.request.contextPath}/areaUtente">Area Personale</a>
-               </li>
-               <li class="nav-item">
-                  <a class="nav-link" href="${pageContext.request.contextPath}/carrello">Carrello()</a>
-               </li>
-            </ul>
-         </div>
-         <div class="collapse navbar-collapse" id="collapsibleNavbar" style="place-content: flex-end">
-            <ul class="navbar-nav">
-               <li class="nav-item">
-                  <a class="nav-link" href="${pageContext.request.contextPath}/logout">Disconnetti</a>
-               </li>
-            </ul>
-         </div>
          <% }else { %>
          <div class="collapse navbar-collapse" id="collapsibleNavbar">
             <ul class="navbar-nav">
