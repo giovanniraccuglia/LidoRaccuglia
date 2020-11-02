@@ -91,10 +91,10 @@ public class GestioneDipendenteServlet extends HttpServlet {
 			String status;
 			if(nome != null && cognome != null && cellulare != null && email != null && ruolo != null) {
 				if(DBMS.verificaUtente(email, cellulare)) {
-					status = "{\"INSERIMENTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account già presente.\"}";
+					status = "{\"INSERIMENTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account gi&agrave; presente.\"}";
 				}else {
 					String password = genPassword(5);
-					String oggetto = "ACCOUNT AZIENDALE";
+					String oggetto = "ACCOUNT AZIENDALE MARRAKECH BEACH";
 					String messaggio = "Benvenuto nella famiglia di Marrakech Beach, queste sono le tue credenziali per accedere al tuo account aziendale. Email: '" + email + "' - Password: '" + password + "'. Per ragioni di sicurezza è consigliabile cambiare la password dopo l'accesso.";
 					DBMS.registrazioneDipendente(nome, cognome, cellulare, email, password, ruolo);
 					InvioEmail.sendEmail(email, messaggio, oggetto);

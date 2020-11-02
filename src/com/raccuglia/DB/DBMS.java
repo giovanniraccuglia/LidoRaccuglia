@@ -164,8 +164,10 @@ public class DBMS {
     
     public static List<Utente> getDipendenti() {
     	List<Utente> dipendenti = new ArrayList<>();
-    	String query = "select * from Raccuglia.Utente where ruolo != 'Admin' and ruolo != 'Cliente' order by ruolo";
+    	String query = "select * from Raccuglia.Utente where ruolo != ? and ruolo != ? order by ruolo";
     	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+    		statement.setString(1, "Admin");
+    		statement.setString(2, "Cliente");
     		ResultSet rs = statement.executeQuery();
     		while(rs.next()) {
     			dipendenti.add(new Utente(rs.getInt("idUtente"), rs.getString("nome"), rs.getString("cognome"), rs.getString("cellulare"), rs.getString("email"), rs.getString("password"), rs.getString("ruolo")));
@@ -193,9 +195,11 @@ public class DBMS {
     }
     
     public static void deleteDipendente(int idUtente) {
-    	String query = "delete from Raccuglia.Utente where idUtente = ? and ruolo != 'Admin' and ruolo != 'Cliente'";
+    	String query = "delete from Raccuglia.Utente where idUtente = ? and ruolo != ? and ruolo != ?";
     	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
     		statement.setInt(1, idUtente);
+    		statement.setString(2, "Admin");
+    		statement.setString(3, "Cliente");
     		statement.executeUpdate();
     	}catch(SQLException e) {
     		printSQLException(e);
@@ -329,10 +333,11 @@ public class DBMS {
     }
     
     public static void deletePrenotazione(int idUtente, int idPrenotazione) {
-    	String query = "update Raccuglia.Utente, Raccuglia.Prenotazione set rimborsato = b'1' where (idPrenotazione = ? and idUtente = ? and idUtente = Utente_idUtente)";
+    	String query = "update Raccuglia.Utente, Raccuglia.Prenotazione set rimborsato = ? where (idPrenotazione = ? and idUtente = ? and idUtente = Utente_idUtente)";
     	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
-    		statement.setInt(1, idPrenotazione);
-			statement.setInt(2, idUtente);
+    		statement.setBoolean(1, true);
+    		statement.setInt(2, idPrenotazione);
+			statement.setInt(3, idUtente);
 			statement.executeUpdate();
     	}catch(SQLException e) {
     		printSQLException(e);
@@ -341,9 +346,10 @@ public class DBMS {
     
     public static List<Postazione> getPostazioniPrenotate(Date dataPrenotazione) {
     	List<Postazione> postazioni = new ArrayList<>();
-    	String query = "select Postazione.* from Raccuglia.Postazione where idPostazione in (select Postazione_idPostazione from Raccuglia.Prenotazione, Raccuglia.Prenotazione_has_Postazione where idPrenotazione in (select idPrenotazione from Raccuglia.Prenotazione where dataPrenotazione = ? and rimborsato = b'0') and idPrenotazione = Prenotazione_idPrenotazione)";
+    	String query = "select Postazione.* from Raccuglia.Postazione where idPostazione in (select Postazione_idPostazione from Raccuglia.Prenotazione, Raccuglia.Prenotazione_has_Postazione where idPrenotazione in (select idPrenotazione from Raccuglia.Prenotazione where dataPrenotazione = ? and rimborsato = ?) and idPrenotazione = Prenotazione_idPrenotazione)";
     	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
     		statement.setDate(1, dataPrenotazione);
+    		statement.setBoolean(2, false);
     		ResultSet rs = statement.executeQuery();
     		while(rs.next()) {
     			postazioni.add(new Postazione(rs.getInt("idPostazione"), rs.getDouble("prezzo")));
@@ -418,10 +424,12 @@ public class DBMS {
    
     public static Utente getUtenteFromPostazione(Date dataPrenotazione, int idPostazione) {
     	Utente utente = null;
-    	String query = "select Utente.* from Raccuglia.Utente where idUtente in (select Prenotazione.Utente_idUtente from Raccuglia.Prenotazione where idPrenotazione in (select Prenotazione_has_Postazione.Prenotazione_idPrenotazione from Raccuglia.Prenotazione_has_Postazione, Raccuglia.Postazione where Prenotazione_idPrenotazione in (select Prenotazione.idPrenotazione from Raccuglia.Prenotazione where dataPrenotazione = ? and rimborsato = b'0') and idPostazione = ? and idPostazione = Postazione_idPostazione)) and ruolo = 'Cliente'";
+    	String query = "select Utente.* from Raccuglia.Utente where idUtente in (select Prenotazione.Utente_idUtente from Raccuglia.Prenotazione where idPrenotazione in (select Prenotazione_has_Postazione.Prenotazione_idPrenotazione from Raccuglia.Prenotazione_has_Postazione, Raccuglia.Postazione where Prenotazione_idPrenotazione in (select Prenotazione.idPrenotazione from Raccuglia.Prenotazione where dataPrenotazione = ? and rimborsato = ?) and idPostazione = ? and idPostazione = Postazione_idPostazione)) and ruolo = ?";
     	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
     		statement.setDate(1, dataPrenotazione);
-    		statement.setInt(2, idPostazione);
+    		statement.setBoolean(2, false);
+    		statement.setInt(3, idPostazione);
+    		statement.setString(4, "Cliente");
     		ResultSet rs = statement.executeQuery();
     		if(rs.next()) {
     			utente = new Utente(rs.getInt("idUtente"), rs.getString("nome"), rs.getString("cognome"), rs.getString("cellulare"), rs.getString("email"), rs.getString("password"), rs.getString("ruolo"));
@@ -433,7 +441,50 @@ public class DBMS {
     	return utente;
     }
     
-    public static List<Ordine> getOrdini(int idUtente) {
+    public static List<Ordine> getOrdini() {
+    	List<Ordine> ordini = new ArrayList<>();
+    	String query1 = "select * from Raccuglia.Ordine where ritirato != ? and pagato = ? order by data desc";
+    	try(Connection connection1  = getConnection(); PreparedStatement statement1 = connection1.prepareStatement(query1)) {
+    		statement1.setBoolean(1, true);
+    		statement1.setBoolean(2, true);
+    		ResultSet rs1 = statement1.executeQuery();
+    		while(rs1.next()) {
+    			List<Prodotto> prodotti = new ArrayList<>();
+    			List<Integer> quantita = new ArrayList<>();
+    			String query2 = "select Prodotto.* from Raccuglia.Prodotto where idProdotto in (select Prodotto_idProdotto from Raccuglia.Ordine, Raccuglia.Ordine_has_Prodotto where idOrdine = ? and idOrdine = Ordine_idOrdine)";
+    			try(Connection connection2 = getConnection(); PreparedStatement statement2 = connection2.prepareStatement(query2)) {
+    				statement2.setInt(1, rs1.getInt("idOrdine"));
+    				ResultSet rs2 = statement2.executeQuery();
+    				while(rs2.next()) {
+    					Prodotto prodotto = new Prodotto(rs2.getInt("idProdotto"), rs2.getString("nome"), rs2.getString("descrizione"), rs2.getDouble("prezzo"), rs2.getString("categoria"));
+    					String query3 = "select Ordine_has_Prodotto.quantità from Raccuglia.Ordine, Raccuglia.Ordine_has_Prodotto, Raccuglia.Prodotto where idOrdine = ? and idOrdine = Ordine_idOrdine and idProdotto = ? and idProdotto = Prodotto_idProdotto";
+    					try(Connection connection3 = getConnection(); PreparedStatement statement3 = connection3.prepareStatement(query3)) {
+    						statement3.setInt(1, rs1.getInt("idOrdine"));
+    						statement3.setInt(2, prodotto.getIdProdotto());
+    						ResultSet rs3 = statement3.executeQuery();
+    						if(rs3.next()) {
+    							quantita.add(rs3.getInt("quantità"));
+    						}
+    						rs3.close();
+    					}catch(SQLException e) {
+    	    	    		printSQLException(e);
+    	    	    	}
+    					prodotti.add(prodotto);
+    				}
+    				rs2.close();
+    			}catch(SQLException e) {
+    	    		printSQLException(e);
+    	    	}
+    			ordini.add(new Ordine(rs1.getInt("idOrdine"), rs1.getTimestamp("data"), rs1.getDouble("totale"), rs1.getBoolean("preparato"), rs1.getBoolean("ritirato"), rs1.getBoolean("pagato"), prodotti, quantita));
+    		}
+    		rs1.close();
+    	}catch(SQLException e) {
+    		printSQLException(e);
+    	}
+    	return ordini;
+    }
+    
+    public static List<Ordine> getOrdiniFromId(int idUtente) {
     	List<Ordine> ordini = new ArrayList<>();
     	String query1 = "select Ordine.* from Raccuglia.Utente, Raccuglia.Ordine where idUtente = ? and idUtente = Utente_idUtente order by data desc";
     	try(Connection connection1  = getConnection(); PreparedStatement statement1 = connection1.prepareStatement(query1)) {
@@ -522,4 +573,15 @@ public class DBMS {
     	}
     }
     
+    public static void updateOrdine(int idOrdine, boolean pronto, boolean ritirato) {
+    	String query = "update Raccuglia.Ordine set preparato = ?, ritirato = ? WHERE (idOrdine = ?)";
+    	try(Connection connection  = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+    		statement.setBoolean(1, pronto);
+    		statement.setBoolean(2, ritirato);
+    		statement.setInt(3, idOrdine);
+    		statement.executeUpdate();
+    	}catch(SQLException e) {
+        	printSQLException(e);
+        }
+    }
 }

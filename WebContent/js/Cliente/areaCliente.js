@@ -17,6 +17,7 @@ $(document).ready(function () {
 
 	setInterval(function () {
 		updateMappa();
+		loadPrenotazioniOrdini();
 	}, 300000); //richiesta ogni 3 minuti
 
 	$('#nuovaPrenotazione').click(function () {
@@ -28,6 +29,22 @@ $(document).ready(function () {
 		}
 	});
 
+	$('#closeNuovaPrenotazione').click(function () {
+		let date = new Date(),
+			dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+		$("#date").val(dformat);
+		$('input[type="date"]').prop('min', dformat);
+		$('#divAlertNuovaPrenotazione').empty();
+		postazioniNonPrenotabili = [];
+		postazioniSelezionate = [];
+		totalePrenotazioni = 0;
+		$('#totaleNuovaPrenotazione').html('<h3><strong>Totale:&nbsp;&nbsp;' + totalePrenotazioni.toFixed(2) + '&nbsp;&euro;</strong></h3>');
+	});
+
+	$('#linkNuovoOrdine').click(function () {
+		showMenu();
+	});
+
 	$('#nuovoOrdine').click(function () {
 		if (!(isEmpty(prodottiSelezionati))) {
 			$('#modalNuovoOrdine').modal('hide');
@@ -35,6 +52,13 @@ $(document).ready(function () {
 		} else {
 			$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Selezionare uno o pi&ugrave; prodotti.</div>');
 		}
+	});
+
+	$('#closeNuovoOrdine').click(function () {
+		prodottiSelezionati = {};
+		totaleOrdini = 0;
+		$('#divAlertNuovoOrdine').empty();
+		$('#totaleNuovoOrdine').html('<h3><strong>Totale:&nbsp;&nbsp;' + totaleOrdini.toFixed(2) + '&nbsp;&euro;</strong></h3>');
 	});
 
 	$('#formPagamento').submit(function (e) {
@@ -47,31 +71,13 @@ $(document).ready(function () {
 	});
 
 	$('#closePagamento').click(function () {
+		$('#formPagamento').trigger('reset');
+		$('#modalPagamento').modal('hide');
 		if (postazioniSelezionate.length > 0) {
-			$('#formPagamento').trigger('reset');
-			$('#modalPagamento').modal('hide');
 			$('#modalNuovaPrenotazione').modal('show');
 		} else if (!(isEmpty(prodottiSelezionati))) {
-			$('#formPagamento').trigger('reset');
-			$('#modalPagamento').modal('hide');
 			$('#modalNuovoOrdine').modal('show');
 		} else {}
-	});
-
-	$('#closeNuovaPrenotazione').click(function () {
-		let date = new Date(),
-			dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
-		$("#date").val(dformat);
-		$('input[type="date"]').prop('min', dformat);
-		$('#divAlertNuovaPrenotazione').empty();
-		postazioniNonPrenotabili = [];
-		postazioniSelezionate = [];
-		totalePrenotazioni = 0;
-		$('#totaleNuovoOrdine').html('<h3><strong>Totale:&nbsp;&nbsp;' + totalePrenotazioni.toFixed(2) + '&nbsp;&euro;</strong></h3>');
-	});
-
-	$('#linkNuovoOrdine').click(function () {
-		loadMenu();
 	});
 
 	$('#linkColazione').click(function () {
@@ -169,14 +175,67 @@ $(document).ready(function () {
 		$('#divAnalcolici').show();
 	});
 
-	$('#closeNuovoOrdine').click(function () {
-		prodottiSelezionati = {};
-		totaleOrdini = 0;
-		$('#divAlertNuovoOrdine').empty();
-		$('#totaleNuovoOrdine').html('<h3><strong>Totale:&nbsp;&nbsp;' + totaleOrdini.toFixed(2) + '&nbsp;&euro;</strong></h3>');
-	});
-
 });
+
+var prenotazioni = {};
+var ordini = {};
+var postazioniNonPrenotabili = [];
+var postazioniSelezionate = [];
+var prodottiSelezionati = {};
+var totaleOrdini = 0;
+var totalePrenotazioni = 0;
+
+function loadPrenotazioniOrdini() {
+	$.ajax({
+		url: './areaUtente',
+		dataType: 'json',
+		type: 'post',
+		success: function (data) {
+			let str1 = '';
+			let str2 = '';
+			$.each(data[0], function (key, val) {
+				prenotazioni[val.idPrenotazione] = val;
+				let today = new Date();
+				let day = 86400000;
+				let d = new Date(val.data),
+					dformat = [('0' + d.getDate()).slice(-2), ('0' + (d.getMonth() + 1)).slice(-2), d.getFullYear()].join('-') + ' ' + [('0' + d.getHours()).slice(-2), ('0' + d.getMinutes()).slice(-2), ('0' + d.getSeconds()).slice(-2)].join(':');
+				if (val.rimborsato == 1) {
+					str1 += '<tr><td>' + dformat + '</td><td><i>annullata</i></td>';
+					str1 += '<td class="text-center"><button onclick="getPrenotazione(' + val.idPrenotazione + ')" data-toggle="modal" data-target="#modalVisualizzaPrenotazione" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
+					str1 += '<td></td></tr>';
+				} else if (val.dataPrenotazione < (today.getTime() + day)) {
+					str1 += '<tr><td>' + dformat + '</td><td><i>confermata</i></td>';
+					str1 += '<td class="text-center"><button onclick="getPrenotazione(' + val.idPrenotazione + ')" data-toggle="modal" data-target="#modalVisualizzaPrenotazione" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
+					str1 += '<td></td></tr>';
+				} else {
+					str1 += '<tr><td>' + dformat + '</td><td><i>in corso</i></td>';
+					str1 += '<td class="text-center"><button onclick="getPrenotazione(' + val.idPrenotazione + ')" data-toggle="modal" data-target="#modalVisualizzaPrenotazione" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
+					str1 += '<td class="text-center"><button onclick="deletePrenotazione(' + val.idPrenotazione + ')" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-trash"></i></button></td></tr>';
+				}
+			});
+			$.each(data[1], function (key, val) {
+				ordini[val.idOrdine] = val;
+				let d = new Date(val.data),
+					dformat = [('0' + d.getDate()).slice(-2), ('0' + (d.getMonth() + 1)).slice(-2), d.getFullYear()].join('-') + ' ' + [('0' + d.getHours()).slice(-2), ('0' + d.getMinutes()).slice(-2), ('0' + d.getSeconds()).slice(-2)].join(':');
+				if (val.preparato == 1 && val.ritirato == 0) {
+					str2 += '<tr><td>' + dformat + '</td><td><i>da ritirare</i></td>';
+					str2 += '<td class="text-center"><button onclick="getOrdine(' + val.idOrdine + ')" data-toggle="modal" data-target="#modalVisualizzaOrdine" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
+				} else if (val.preparato == 1 && val.ritirato == 1) {
+					str2 += '<tr><td>' + dformat + '</td><td><i>ritirato</i></td>';
+					str2 += '<td class="text-center"><button onclick="getOrdine(' + val.idOrdine + ')" data-toggle="modal" data-target="#modalVisualizzaOrdine" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
+				} else {
+					str2 += '<tr><td>' + dformat + '</td><td><i>in preparazione</i></td>';
+					str2 += '<td class="text-center"><button onclick="getOrdine(' + val.idOrdine + ')" data-toggle="modal" data-target="#modalVisualizzaOrdine" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
+				}
+			});
+			$('#tablePrenotazioni').html(str1);
+			$('#tableOrdini').html(str2);
+		},
+		error: function (errorThrown) {
+			console.log(errorThrown);
+		}
+	});
+}
 
 function getListaCategoria(lista, c) {
 	return lista.filter(function (x) {
@@ -215,7 +274,7 @@ function decrProdotto(id) {
 	}
 }
 
-function loadMenu() {
+function showMenu() {
 	$.ajax({
 		url: './menu',
 		dataType: 'json',
@@ -248,14 +307,6 @@ function loadMenu() {
 	});
 }
 
-var prenotazioni = {};
-var ordini = {};
-var postazioniNonPrenotabili = [];
-var postazioniSelezionate = [];
-var prodottiSelezionati = {};
-var totaleOrdini = 0;
-var totalePrenotazioni = 0;
-
 function pagaOrdine() {
 	$.ajax({
 		url: './pagamento',
@@ -268,28 +319,7 @@ function pagaOrdine() {
 				$('#modalNuovoOrdine').modal('show');
 				ordina();
 			} else {
-				$('#divAlertPagamento').html('<div class="alert alert-info center"><strong>Errore</strong> Pagamento non riuscito.</div>');
-			}
-		},
-		error: function (errorThrown) {
-			console.log(errorThrown);
-		}
-	});
-}
-
-function pagaPrenotazione() {
-	$.ajax({
-		url: './pagamento',
-		dataType: 'json',
-		type: 'post',
-		success: function (data) {
-			if (data.PAGATO == 'true') {
-				$('#formPagamento').trigger('reset');
-				$('#modalPagamento').modal('hide');
-				$('#modalNuovaPrenotazione').modal('show');
-				prenota();
-			} else {
-				$('#divAlertPagamento').html('<div class="alert alert-info center"><strong>Errore</strong> Pagamento non riuscito.</div>');
+				$('#divAlertPagamento').html('<div class="alert alert-info center"><strong>Errore!</strong> Pagamento non riuscito.</div>');
 			}
 		},
 		error: function (errorThrown) {
@@ -324,6 +354,27 @@ function ordina() {
 	} else {
 		$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Selezionare uno o pi&ugrave; prodotti.</div>');
 	}
+}
+
+function pagaPrenotazione() {
+	$.ajax({
+		url: './pagamento',
+		dataType: 'json',
+		type: 'post',
+		success: function (data) {
+			if (data.PAGATO == 'true') {
+				$('#formPagamento').trigger('reset');
+				$('#modalPagamento').modal('hide');
+				$('#modalNuovaPrenotazione').modal('show');
+				prenota();
+			} else {
+				$('#divAlertPagamento').html('<div class="alert alert-info center"><strong>Errore!</strong> Pagamento non riuscito.</div>');
+			}
+		},
+		error: function (errorThrown) {
+			console.log(errorThrown);
+		}
+	});
 }
 
 function prenota() {
@@ -384,8 +435,6 @@ function updateMappa() {
 				console.log(errorThrown);
 			}
 		});
-	} else {
-		buildMappa(data[0]);
 	}
 }
 
@@ -411,73 +460,16 @@ function buildMappa(data) {
 	$('#mappaLido').html(mare + battigia + postazioni);
 }
 
-function loadPrenotazioniOrdini() {
-	$.ajax({
-		url: './areaUtente',
-		dataType: 'json',
-		type: 'post',
-		success: function (data) {
-			let str1 = '';
-			let str2 = '';
-			$.each(data[0], function (key, val) {
-				prenotazioni[val.idPrenotazione] = val;
-				let today = new Date();
-				let day = 86400000;
-				let d = new Date(val.data),
-					dformat = [('0' + d.getDate()).slice(-2), ('0' + (d.getMonth() + 1)).slice(-2), d.getFullYear()].join('-') + ' ' + [('0' + d.getHours()).slice(-2), ('0' + d.getMinutes()).slice(-2), ('0' + d.getSeconds()).slice(-2)].join(':');
-				if (val.rimborsato == 1) {
-					str1 += '<tr><td>' + dformat + '</td><td><i>annullata</i></td>';
-					str1 += '<td class="text-center"><button onclick="getPrenotazione(' + val.idPrenotazione + ')" data-toggle="modal" data-target="#modalVisualizzaPrenotazione" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
-					str1 += '<td></td></tr>';
-				} else if (val.dataPrenotazione < (today.getTime() + day)) {
-					str1 += '<tr><td>' + dformat + '</td><td><i>confermata</i></td>';
-					str1 += '<td class="text-center"><button onclick="getPrenotazione(' + val.idPrenotazione + ')" data-toggle="modal" data-target="#modalVisualizzaPrenotazione" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
-					str1 += '<td></td></tr>';
-				} else {
-					str1 += '<tr><td>' + dformat + '</td><td><i>in corso</i></td>';
-					str1 += '<td class="text-center"><button onclick="getPrenotazione(' + val.idPrenotazione + ')" data-toggle="modal" data-target="#modalVisualizzaPrenotazione" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
-					str1 += '<td class="text-center"><button onclick="deletePrenotazione(' + val.idPrenotazione + ')" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-trash"></i></button></td></tr>';
-				}
-			});
-			$.each(data[1], function (key, val) {
-				ordini[val.idOrdine] = val;
-				let d = new Date(val.data),
-					dformat = [('0' + d.getDate()).slice(-2), ('0' + (d.getMonth() + 1)).slice(-2), d.getFullYear()].join('-') + ' ' + [('0' + d.getHours()).slice(-2), ('0' + d.getMinutes()).slice(-2), ('0' + d.getSeconds()).slice(-2)].join(':');
-				if (val.preparato == 1 && val.ritirato == 0) {
-					str2 += '<tr><td>' + dformat + '</td><td><i>da ritirare</i></td>';
-					str2 += '<td class="text-center"><button onclick="getOrdine(' + val.idOrdine + ')" data-toggle="modal" data-target="#modalVisualizzaOrdine" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
-				} else if (val.preparato == 1 && val.ritirato == 1) {
-					str2 += '<tr><td>' + dformat + '</td><td><i>ritirato</i></td>';
-					str2 += '<td class="text-center"><button onclick="getOrdine(' + val.idOrdine + ')" data-toggle="modal" data-target="#modalVisualizzaOrdine" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
-				} else {
-					str2 += '<tr><td>' + dformat + '</td><td><i>in preparazione</i></td>';
-					str2 += '<td class="text-center"><button onclick="getOrdine(' + val.idOrdine + ')" data-toggle="modal" data-target="#modalVisualizzaOrdine" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-eye"></i></button></td>';
-				}
-			});
-			$('#tablePrenotazioni').html(str1);
-			$('#tableOrdini').html(str2);
-		},
-		error: function (errorThrown) {
-			console.log(errorThrown);
-		}
-	});
-}
-
 function getOrdine(id) {
 	if (id != null) {
 		let i = 0;
-		let d = ordini[id];
-		let str = '<h3 class="text-center"><strong>Info Ordine #' + d.idOrdine + '</strong></h3><br>';
-		let str1 = '<div class="row"><div class="col-6"><p><strong>Prodotto</strong></p><p>';
-		let str2 = '<div class="col-6"><p><strong>qnt.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prezzo</strong></p><p>';
-		$.each(d.prodotti, function (key, val) {
-			str1 += val.nome + '<br>';
-			str2 += 'x' + d.quantita[i] + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + val.prezzo.toFixed(2) + '&nbsp;&euro;<br>';
-			i = i + 1;
+		let o = ordini[id];
+		let str = '<div><h3 class="text-center"><strong>Info Ordine #' + o.idOrdine + '</strong></h3></div><br><table class="table"><thead><tr><td><strong>Prodotto</strong></td><td><strong>qnt.</strong></td><td><strong>prezzo</strong></td></tr></thead><tbody>';
+		$.each(o.prodotti, function (key, val) {
+			str += '<tr><td>' + val.nome + '</td><td>x' + o.quantita[i] + '</td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td></tr>';
+			i += 1;
 		});
-		str1 += '</p></div>';
-		str2 += '</p></div></div>';
-		str += str1 + str2 + '<div><p><strong>Totale:&nbsp;&nbsp;&nbsp;' + d.totale.toFixed(2) + '&nbsp;&euro;</strong></p></div>';
+		str += '</tbody></table><div><p><strong>Totale:&nbsp;&nbsp;&nbsp;' + o.totale.toFixed(2) + '&nbsp;&euro;</strong></p></div>';
 		$('#modalBodyVisualizzaOrdine').html(str);
 	} else {
 		$('#divAlertOrdine').html('<div class="alert alert-info center"><strong>Errore</strong> Impossibile visualizzare i dettagli dell\'ordine.</div>').show();
@@ -487,21 +479,23 @@ function getOrdine(id) {
 
 function getPrenotazione(id) {
 	if (id != null) {
-		let d = prenotazioni[id];
-		let date = new Date(d.dataPrenotazione),
+		let p = prenotazioni[id];
+		let date = new Date(p.dataPrenotazione),
 			dformat = [('0' + date.getDate()).slice(-2), ('0' + (date.getMonth() + 1)).slice(-2), date.getFullYear()].join('-');
-		let str = '<h3 class="text-center"><strong>Info Prenotazione #' + d.idPrenotazione + '</strong></h3><br><p>Data:&nbsp;&nbsp;&nbsp;' + dformat + '<br>';
-		$.each(d.postazioni, function (data, val) {
-			str += 'Postazione n&ordm;:&nbsp;&nbsp;&nbsp;' + val.idPostazione + '&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;costo:&nbsp;&nbsp;&nbsp;' + val.prezzo.toFixed(2) + '&nbsp;&euro;<br>';
+		let str = '<div><h3 class="text-center"><strong>Info Prenotazione #' + p.idPrenotazione + '</strong></h3></div><br><div><p>Data:&nbsp;&nbsp;&nbsp;' + dformat + '</p></div>';
+		str += '<table class="table"><thead><tr><td><strong>Postazione</strong></td><td><strong>prezzo</strong></td></tr></thead><tbody>';
+		$.each(p.postazioni, function (data, val) {
+			str += '<tr><td>#' + val.idPostazione + '</td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td></tr>';
 		});
-		if (d.rimborsato == 1) {
-			str += '</p><p><strong>Prenotazione annullata.<br>Importo rimborsato:&nbsp;&nbsp;&nbsp;' + d.totale.toFixed(2) + '&nbsp;&euro;</strong></p>';
+		str += '</tbody></table>';
+		if (p.rimborsato == 1) {
+			str += '<div><p><strong>Prenotazione annullata.<br>Importo rimborsato:&nbsp;&nbsp;&nbsp;' + p.totale.toFixed(2) + '&nbsp;&euro;</strong></p></div>';
 		} else {
-			str += '</p><p><strong>Totale:&nbsp;&nbsp;&nbsp;' + d.totale.toFixed(2) + '&nbsp;&euro;</strong></p>';
+			str += '<div><p><strong>Totale:&nbsp;&nbsp;&nbsp;' + p.totale.toFixed(2) + '&nbsp;&euro;</strong></p></div>';
 		}
 		$('#modalBodyVisualizzaPrenotazione').html(str);
 	} else {
-		$('#divAlertPrenotazione').html('<div class="alert alert-info center"><strong>Errore</strong> Impossibile visualizzare i dettagli della prenotazione.</div>').show();
+		$('#divAlertPrenotazione').html('<div class="alert alert-info center"><strong>Errore!</strong> Impossibile visualizzare i dettagli della prenotazione.</div>').show();
 		$('#divAlertPrenotazione').delay(3000).fadeOut();
 	}
 }
@@ -522,7 +516,7 @@ function deletePrenotazione(id) {
 			}
 		});
 	} else {
-		$('#divAlertPrenotazione').html('<div class="alert alert-info center"><strong>Errore</strong> Impossibile annullare la prenotazione.</div>').show();
+		$('#divAlertPrenotazione').html('<div class="alert alert-info center"><strong>Errore!</strong> Impossibile annullare la prenotazione.</div>').show();
 		$('#divAlertPrenotazione').delay(3000).fadeOut();
 	}
 }

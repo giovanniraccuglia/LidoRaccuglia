@@ -92,7 +92,7 @@
                   </div>
                   <!-- The Modal Visualizza Prenotazione -->
                   <div class="modal fade" id="modalVisualizzaPrenotazione">
-                     <div class="modal-dialog modal-dialog-centered">
+                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                            <!-- Modal body -->
                            <div id="modalBodyVisualizzaPrenotazione" class="modal-body w3-opacity">
@@ -133,7 +133,7 @@
                   </div>
                   <!-- The Modal Visualizza Ordine -->
                   <div class="modal fade" id="modalVisualizzaOrdine">
-                     <div class="modal-dialog modal-dialog-centered">
+                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                            <!-- Modal body -->
                            <div id="modalBodyVisualizzaOrdine" class="modal-body w3-opacity">

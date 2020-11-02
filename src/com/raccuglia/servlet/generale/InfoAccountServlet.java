@@ -42,11 +42,11 @@ public class InfoAccountServlet extends HttpServlet {
 		if(utente == null) {
 			response.sendRedirect(request.getContextPath());
 		}else {
-			modificaUtente(request, response);
+			updateUtente(request, response);
 		}
 	}
 	
-	private void modificaUtente(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void updateUtente(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			Utente currentUtente = (Utente) request.getSession().getAttribute("utente");
 			String nome = request.getParameter("nome");
@@ -62,7 +62,7 @@ public class InfoAccountServlet extends HttpServlet {
 				if(equalsUtente(currentUtente, newUtente) != true) {
 					if((currentUtente.getEmail().equals(email) != true) && (currentUtente.getCellulare().equals(cellulare) != true)) {
 						if(DBMS.verificaUtente(email, cellulare)) {
-							status = "{\"ACCOUNT\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"E-mail e Cellulare già presenti all'interno del sistema.\"}";
+							status = "{\"ACCOUNT\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"E-mail e Cellulare gi&agrave; presenti all'interno del sistema.\"}";
 						}else {
 							DBMS.updateUtente(newUtente.getIdUtente(), newUtente.getNome(), newUtente.getCognome(), newUtente.getCellulare(), newUtente.getEmail());
 							request.getSession().setAttribute("utente", newUtente);
@@ -70,7 +70,7 @@ public class InfoAccountServlet extends HttpServlet {
 						}
 					}else if(currentUtente.getEmail().equals(email) != true) {
 						if(DBMS.verificaUtente(email, "")) {
-							status = "{\"ACCOUNT\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"E-mail già presente all'interno del sistema.\"}";
+							status = "{\"ACCOUNT\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"E-mail gi&agrave; presente all'interno del sistema.\"}";
 						}else {
 							DBMS.updateUtente(newUtente.getIdUtente(), newUtente.getNome(), newUtente.getCognome(), newUtente.getCellulare(), newUtente.getEmail());
 							request.getSession().setAttribute("utente", newUtente);
@@ -78,7 +78,7 @@ public class InfoAccountServlet extends HttpServlet {
 						}
 					}else if(currentUtente.getCellulare().equals(cellulare) != true) {
 						if(DBMS.verificaUtente("", cellulare)) {
-							status = "{\"ACCOUNT\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Cellulare già presente all'interno del sistema.\"}";
+							status = "{\"ACCOUNT\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Cellulare gi&agrave; presente all'interno del sistema.\"}";
 						}else {
 							DBMS.updateUtente(newUtente.getIdUtente(), newUtente.getNome(), newUtente.getCognome(), newUtente.getCellulare(), newUtente.getEmail());
 							request.getSession().setAttribute("utente", newUtente);

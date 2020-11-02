@@ -43,11 +43,11 @@ public class AreaUtenteServlet extends HttpServlet {
 			}else if(utente.getRuolo().equals("Bagnino")) {
 				dispatcher = request.getRequestDispatcher("/WEB-INF/Bagnino/areaBagnino.jsp");
 				dispatcher.forward(request, response);
-			}else if(utente.getRuolo().equals("Ristorazione")) {
-				dispatcher = request.getRequestDispatcher("/WEB-INF/Ristorazione/areaRistorazione.jsp");
-				dispatcher.forward(request, response);
 			}else if(utente.getRuolo().equals("Cliente")) {
 				dispatcher = request.getRequestDispatcher("/WEB-INF/Cliente/areaCliente.jsp");
+				dispatcher.forward(request, response);
+			}else if(utente.getRuolo().equals("Ristorazione")) {
+				dispatcher = request.getRequestDispatcher("/WEB-INF/Ristorazione/areaRistorazione.jsp");
 				dispatcher.forward(request, response);
 			}else {
 				response.sendError(400);
@@ -71,7 +71,7 @@ public class AreaUtenteServlet extends HttpServlet {
 			}else if(utente.getRuolo().equals("Cliente")) {
 				visualizzaPrenotazioniOrdini(request, response);
 			}else if(utente.getRuolo().equals("Ristorazione")) {
-				//da completare
+				visualizzaOrdini(request, response);
 			}else {
 				response.sendError(400);
 			}
@@ -98,11 +98,24 @@ public class AreaUtenteServlet extends HttpServlet {
 		try {
 			int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
 			List<Prenotazione> listaPrenotazioni = DBMS.getPrenotazioni(idUtente);
-			List<Ordine> listaOrdini = DBMS.getOrdini(idUtente);
+			List<Ordine> listaOrdini = DBMS.getOrdiniFromId(idUtente);
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			ObjectMapper mapper = new ObjectMapper();
 			pr.write("[" + mapper.writeValueAsString(listaPrenotazioni) + "," + mapper.writeValueAsString(listaOrdini) + "]");
+		}catch(Exception e) {
+			e.printStackTrace();
+			response.sendError(400);
+		}
+	}
+	
+	private void visualizzaOrdini(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			List<Ordine> listaOrdini = DBMS.getOrdini();
+			PrintWriter pr = response.getWriter();
+			response.setContentType("application/json");
+			ObjectMapper mapper = new ObjectMapper();
+			pr.write(mapper.writeValueAsString(listaOrdini));
 		}catch(Exception e) {
 			e.printStackTrace();
 			response.sendError(400);
@@ -116,6 +129,7 @@ public class AreaUtenteServlet extends HttpServlet {
 			Date today = new Date(System.currentTimeMillis());
 			if(dataPrenotazione != null && (dataPrenotazione.compareTo(Date.valueOf(sdf.format(today))) == 0 || dataPrenotazione.after(Date.valueOf(sdf.format(today))))) {
 				List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
+				List<Postazione> postazioni = DBMS.getPostazioni();
 				List<Utente> utentiPrenotati = new ArrayList<>();
 				for(int i = 0; i < postazioniPrenotate.size(); i++) {
 					utentiPrenotati.add(DBMS.getUtenteFromPostazione(dataPrenotazione, postazioniPrenotate.get(i).getIdPostazione()));
@@ -123,7 +137,7 @@ public class AreaUtenteServlet extends HttpServlet {
 				PrintWriter pr = response.getWriter();
 				response.setContentType("application/json");
 				ObjectMapper mapper = new ObjectMapper();
-				pr.write("[" + mapper.writeValueAsString(postazioniPrenotate) + "," + mapper.writeValueAsString(utentiPrenotati) + "]");
+				pr.write("[" + mapper.writeValueAsString(postazioniPrenotate) + "," + mapper.writeValueAsString(utentiPrenotati) + "," + mapper.writeValueAsString(postazioni) + "]");
 			}
 		}catch(Exception e) {
 			e.printStackTrace();

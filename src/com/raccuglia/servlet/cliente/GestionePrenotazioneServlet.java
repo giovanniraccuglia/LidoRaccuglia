@@ -82,9 +82,9 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 			Date dataPrenotazione = prenotazione.getDataPrenotazione();
 			Date tomorrow = new Date(System.currentTimeMillis() + 86400000);
 			if(prenotazione.isRimborsato()) {
-				status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prenotazione già annullata.\"}";
+				status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prenotazione gi&agrave; annullata.\"}";
 			}else if(dataPrenotazione.before(tomorrow)) {
-				status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"La prenotazione non può più essere annullata.\"}";
+				status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"La prenotazione non pu&ograve; pi&ugrave; essere annullata.\"}";
 			}else {
 				DBMS.deletePrenotazione(idUtente, idPrenotazione);
 				status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prenotazione annullata correttamente.\"}";

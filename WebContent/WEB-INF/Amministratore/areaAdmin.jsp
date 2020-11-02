@@ -95,7 +95,6 @@
                                     <select class="form-control" id="ruoloNuovoDipendente" name="ruolo">
                                        <option>Bagnino</option>
                                        <option>Ristorazione</option>
-                                       <option>Cassiere</option>
                                     </select>
                                  </div>
                                  <div class="modal-footer">

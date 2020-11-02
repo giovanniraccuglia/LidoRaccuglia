@@ -89,7 +89,7 @@ public class GestioneProdottoServlet extends HttpServlet {
 			String status;
 			if(nome != null && descrizione != null && prezzo != null && categoria != null) {
 				if(DBMS.verificaProdotto(nome)) {
-					status = "{\"AGGIUNTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prodotto già presente.\"}";
+					status = "{\"AGGIUNTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prodotto gi&agrave; presente.\"}";
 				}else {
 					DBMS.aggiungiProdotto(nome, descrizione, prezzo, categoria);
 					int idProdotto = DBMS.getProdotto(nome).getIdProdotto();

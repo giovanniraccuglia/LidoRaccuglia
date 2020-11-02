@@ -1,33 +1,33 @@
 $(document).ready(function () {
-	
+
 	let date = new Date(),
-	dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+		dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
 	$("#date").val(dformat);
 	$('input[type="date"]').prop('min', dformat);
 
 	$('#linkSpiaggia').click(function () {
 		updateMappa();
 	});
-	
-	$('#date').change(function() {
+
+	$('#date').change(function () {
 		updateMappa();
 	});
 
-    setInterval(function(){
-    	updateMappa();
-    }, 500000); //richiesta ogni 5 minuti
-    
-    $('#closeSpiaggia').click(function() {
-    	let date = new Date(),
-    	dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
-    	$("#date").val(dformat);
-    	$('input[type="date"]').prop('min', dformat);
-    });
-	
+	setInterval(function () {
+		updateMappa();
+	}, 500000); //richiesta ogni 5 minuti
+
+	$('#closeSpiaggia').click(function () {
+		let date = new Date(),
+			dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+		$("#date").val(dformat);
+		$('input[type="date"]').prop('min', dformat);
+	});
+
 });
 
 function updateMappa() {
-	if($('#date').val() != null) {
+	if ($('#date').val() != null) {
 		$.ajax({
 			url: './spiaggia',
 			dataType: 'json',
@@ -43,8 +43,6 @@ function updateMappa() {
 				console.log(errorThrown);
 			}
 		});
-	}else {
-		buildMappa(data[0]);
 	}
 }
 

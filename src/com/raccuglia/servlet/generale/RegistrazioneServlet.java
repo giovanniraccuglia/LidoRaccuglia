@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.InvioEmail;
 
 /**
  * Servlet implementation class RegistrazioneServlet
@@ -53,10 +54,13 @@ public class RegistrazioneServlet extends HttpServlet {
 			String status;
 			if(nome != null && cognome != null && cellulare != null && email != null && password != null && ripassword !=  null) {
 				if(password.equals(ripassword)) {
-					if(DBMS.verificaUtente(email.toLowerCase(), cellulare)) {
-						status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account già presente.\"}";
+					if(DBMS.verificaUtente(email, cellulare)) {
+						status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account gi&agrave; presente.\"}";
 					}else {
 						DBMS.registrazioneCliente(nome, cognome, cellulare, email.toLowerCase(), password);
+						String oggetto = "BENVENUTO A MARRAKECH BEACH";
+						String messaggio = "Gentile Cliente, Le comunichiamo che la registrazione del suo account è avvenuta con successo. Ti invitiamo a visitare il nostro sito per usufruire dei nostri servizi. Grazie, e a presto.";
+						InvioEmail.sendEmail(email, messaggio, oggetto);
 						status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Account correttamente registrato.\"}";
 					}
 				}else {

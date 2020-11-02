@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.InvioEmail;
 
 /**
  * Servlet implementation class ModificaPasswordServlet
@@ -58,6 +59,10 @@ public class ModificaPasswordServlet extends HttpServlet {
 					Utente utente = (Utente) request.getSession().getAttribute("utente");
 					if(DBMS.verificaPassword(utente.getIdUtente(), vecchiaPassword)) {
 						DBMS.updatePassword(utente.getIdUtente(), nuovaPassword);
+						String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
+						String oggetto = "MODIFICA PASSWORD MARRAKECH BEACH";
+						String messaggio = "Gentile Cliente, La informiamo che la modifica della sua password è avvenuta con successo.";
+						InvioEmail.sendEmail(email, messaggio, oggetto);
 						status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Password aggiornata correttamente.\"}";
 					}else {
 						status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Password errata.\"}";

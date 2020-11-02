@@ -42,10 +42,8 @@ public class MenuServlet extends HttpServlet {
 			List<Prodotto> listaProdotti = DBMS.getProdotti();
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
-			if(!listaProdotti.isEmpty()) {
-				ObjectMapper mapper = new ObjectMapper();
-				pr.write(mapper.writeValueAsString(listaProdotti));
-			}
+			ObjectMapper mapper = new ObjectMapper();
+			pr.write(mapper.writeValueAsString(listaProdotti));
 		}catch(Exception e) {
 			e.printStackTrace();
 			response.sendError(400);

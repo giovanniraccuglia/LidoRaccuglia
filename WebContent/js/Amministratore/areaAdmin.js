@@ -4,38 +4,7 @@ $(document).ready(function () {
 
 	$('#formNuovoDipendente').submit(function (e) {
 		e.preventDefault();
-		let nome = $('#nomeNuovoDipendente').val();
-		let cognome = $('#cognomeNuovoDipendente').val();
-		let cellulare = $('#cellulareNuovoDipendente').val();
-		let email = $('#emailNuovoDipendente').val();
-		let ruolo = $('#ruoloNuovoDipendente').val();
-		if(nome != null && cognome != null && cellulare != null && email != null && ruolo != null) {
-			$.ajax({
-				url: './gestioneDipendente',
-				dataType: 'json',
-				type: 'post',
-				data: {
-					'nome': nome,
-					'cognome': cognome,
-					'cellulare': cellulare,
-					'email': email,
-					'ruolo': ruolo
-				},
-				success: function (data) {
-					if (data.INSERIMENTO == 'true') {
-						loadDipendentiProdotti();
-					}
-					$('#formNuovoDipendente').trigger('reset');
-					$('#divAlertNuovoDipendente').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>');
-				},
-				error: function (errorThrown) {
-					console.log(errorThrown);
-				}
-			});
-		}else {
-			$('#formNuovoDipendente').trigger('reset');
-			$('#divAlertNuovoDipendente').html('<div class="alert alert-info center"><strong>Errore</strong> Inserire i dati nei relativi campi.</div>');
-		}
+		addDipendente();
 	});
 
 	$('#closeNuovoDipendente').click(function () {
@@ -45,44 +14,83 @@ $(document).ready(function () {
 
 	$('#formNuovoProdotto').submit(function (e) {
 		e.preventDefault();
-		let nome = $('#nomeNuovoProdotto').val();
-		let descrizione = $('#descrizioneNuovoProdotto').val();
-		let prezzo = $('#prezzoNuovoProdotto').val();
-		let categoria = $('#categoriaNuovoProdotto').val();
-		if(nome != null && descrizione != null && prezzo != null && categoria != null) {
-			$.ajax({
-				url: './gestioneProdotto',
-				dataType: 'json',
-				type: 'post',
-				data: {
-					'nome': nome,
-					'descrizione': descrizione,
-					'prezzo': prezzo,
-					'categoria': categoria
-				},
-				success: function (data) {
-					if (data.AGGIUNTO == 'true') {
-						loadDipendentiProdotti();
-					}
-					$('#formNuovoProdotto').trigger('reset');
-					$('#divAlertNuovoProdotto').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>');
-				},
-				error: function (errorThrown) {
-					console.log(errorThrown);
-				}
-			});
-		}else {
-			$('#formNuovoProdotto').trigger('reset');
-			$('#divAlertNuovoProdotto').html('<div class="alert alert-info center"><strong>Errore</strong> Inserire i dati nei relativi campi.</div>');
-		}
+		addProdotto();
 	});
-	
+
 	$('#closeNuovoProdotto').click(function () {
 		$('#divAlertNuovoProdotto').empty();
 		$('#formNuovoProdotto').trigger('reset');
 	});
-	
+
 });
+
+function addDipendente() {
+	let nome = $('#nomeNuovoDipendente').val();
+	let cognome = $('#cognomeNuovoDipendente').val();
+	let cellulare = $('#cellulareNuovoDipendente').val();
+	let email = $('#emailNuovoDipendente').val();
+	let ruolo = $('#ruoloNuovoDipendente').val();
+	if (nome != null && cognome != null && cellulare != null && email != null && ruolo != null) {
+		$.ajax({
+			url: './gestioneDipendente',
+			dataType: 'json',
+			type: 'post',
+			data: {
+				'nome': nome,
+				'cognome': cognome,
+				'cellulare': cellulare,
+				'email': email,
+				'ruolo': ruolo
+			},
+			success: function (data) {
+				if (data.INSERIMENTO == 'true') {
+					loadDipendentiProdotti();
+				}
+				$('#formNuovoDipendente').trigger('reset');
+				$('#divAlertNuovoDipendente').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>');
+			},
+			error: function (errorThrown) {
+				console.log(errorThrown);
+			}
+		});
+	} else {
+		$('#formNuovoDipendente').trigger('reset');
+		$('#divAlertNuovoDipendente').html('<div class="alert alert-info center"><strong>Errore</strong> Inserire i dati nei relativi campi.</div>');
+	}
+}
+
+function addProdotto() {
+	let nome = $('#nomeNuovoProdotto').val();
+	let descrizione = $('#descrizioneNuovoProdotto').val();
+	let prezzo = $('#prezzoNuovoProdotto').val();
+	let categoria = $('#categoriaNuovoProdotto').val();
+	if (nome != null && descrizione != null && prezzo != null && categoria != null) {
+		$.ajax({
+			url: './gestioneProdotto',
+			dataType: 'json',
+			type: 'post',
+			data: {
+				'nome': nome,
+				'descrizione': descrizione,
+				'prezzo': prezzo,
+				'categoria': categoria
+			},
+			success: function (data) {
+				if (data.AGGIUNTO == 'true') {
+					loadDipendentiProdotti();
+				}
+				$('#formNuovoProdotto').trigger('reset');
+				$('#divAlertNuovoProdotto').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>');
+			},
+			error: function (errorThrown) {
+				console.log(errorThrown);
+			}
+		});
+	} else {
+		$('#formNuovoProdotto').trigger('reset');
+		$('#divAlertNuovoProdotto').html('<div class="alert alert-info center"><strong>Errore!</strong> Inserire i dati nei relativi campi.</div>');
+	}
+}
 
 function loadDipendentiProdotti() {
 	$.ajax({
@@ -108,7 +116,7 @@ function loadDipendentiProdotti() {
 }
 
 function deleteDipendente(id) {
-	if(id != null) {
+	if (id != null) {
 		$.ajax({
 			url: './gestioneDipendente?id=' + id,
 			dataType: 'json',
@@ -122,14 +130,14 @@ function deleteDipendente(id) {
 				console.log(errorThrown);
 			}
 		});
-	}else {
-		$('#divAlertDipendente').html('<div class="alert alert-info center"><strong>Errore</strong> Impossibile eliminare l\'account dell\'utente selezionato.</div>').show();
+	} else {
+		$('#divAlertDipendente').html('<div class="alert alert-info center"><strong>Errore!</strong> Impossibile eliminare l\'account dell\'utente selezionato.</div>').show();
 		$('#divAlertDipendente').delay(3000).fadeOut();
 	}
-};
+}
 
 function deleteProdotto(id) {
-	if(id != null) {
+	if (id != null) {
 		$.ajax({
 			url: './gestioneProdotto?id=' + id,
 			dataType: 'json',
@@ -143,8 +151,8 @@ function deleteProdotto(id) {
 				console.log(errorThrown);
 			}
 		});
-	}else {
-		$('#divAlertProdotto').html('<div class="alert alert-info center"><strong>Errore</strong> Impossibile eliminare il prodotto selezionato.</div>').show();
+	} else {
+		$('#divAlertProdotto').html('<div class="alert alert-info center"><strong>Errore!</strong> Impossibile eliminare il prodotto selezionato.</div>').show();
 		$('#divAlertProdotto').delay(3000).fadeOut();
 	}
-};
+}

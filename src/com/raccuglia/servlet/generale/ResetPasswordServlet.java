@@ -52,7 +52,7 @@ public class ResetPasswordServlet extends HttpServlet {
 				if(DBMS.verificaUtente(email, "")) {
 					String password = genPassword(5);
 					String oggetto = "RESET PASSWORD";
-					String messaggio = "Ciao, questa è la tua nuova password: '" + password + "'. Per ragioni di sicurezza è consigliabile cambiare la password dopo l'accesso.";
+					String messaggio = "Gentile Cliente, questa è la sua nuova password: '" + password + "'. Per ragioni di sicurezza è consigliabile cambiare la password dopo l'accesso.";
 					DBMS.resetPassword(email, password);
 					InvioEmail.sendEmail(email, messaggio, oggetto);
 					status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Password correttamente resettata.\"}";
