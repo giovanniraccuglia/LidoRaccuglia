@@ -247,6 +247,14 @@ function isEmpty(obj) {
 	return Object.keys(obj).length === 0;
 }
 
+function checkQuantita(q) {
+	if(!q) {
+		return 0;
+	}else {
+		return q;
+	}
+}
+
 function incrProdotto(id) {
 	if (isEmpty(prodottiSelezionati)) {
 		prodottiSelezionati[id] = 1;
@@ -259,6 +267,7 @@ function incrProdotto(id) {
 	}
 	totaleOrdini += parseFloat($('#incrProdotto' + id).attr('data-id'));
 	$('#totaleNuovoOrdine').html('<h3><strong>Totale:&nbsp;&nbsp;' + totaleOrdini.toFixed(2) + '&nbsp;&euro;</strong></h3>');
+	$('#quantita' + id).html('x' + checkQuantita(prodottiSelezionati[id]));
 }
 
 function decrProdotto(id) {
@@ -271,10 +280,11 @@ function decrProdotto(id) {
 		}
 		totaleOrdini -= parseFloat($('#decrProdotto' + id).attr('data-id'));
 		$('#totaleNuovoOrdine').html('<h3><strong>Totale:&nbsp;&nbsp;' + totaleOrdini.toFixed(2) + '&nbsp;&euro;</strong></h3>');
+		$('#quantita' + id).html('x' + checkQuantita(prodottiSelezionati[id]));
 	}
 }
 
-function showMenu() {
+function showMenu() { //modificato
 	$.ajax({
 		url: './menu',
 		dataType: 'json',
@@ -291,7 +301,7 @@ function showMenu() {
 				if (getListaCategoria(data, lista1[i]).length > 0) {
 					str += '<div id="' + lista2[j] + '"><h3 class="w3-opacity">' + lista1[i] + '</h3><table class="table table-hover"><thead></thead><tbody>';
 					$.each(getListaCategoria(data, lista1[i]), function (key, val) {
-						str += '<tr><td><strong>' + val.nome + '</strong><span style="display: block"></span><i>' + val.descrizione + '</i></td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td>';
+						str += '<tr><td><strong>' + val.nome + '</strong><span style="display: block"></span><i>' + val.descrizione + '</i></td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td><td id="quantita' + val.idProdotto + '">x0</td>';
 						str += '<td class="text-center"><button id="incrProdotto' + val.idProdotto + '" data-id="' + val.prezzo + '" onclick="incrProdotto(' + val.idProdotto + ')" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-plus"></i></button></td>';
 						str += '<td class="text-center"><button id="decrProdotto' + val.idProdotto + '" data-id="' + val.prezzo + '" onclick="decrProdotto(' + val.idProdotto + ')" type="button" class="btn bg-info" style="color: whitesmoke"><i class="fa fa-minus"></i></button></td></tr>';
 					});
@@ -464,7 +474,7 @@ function getOrdine(id) {
 	if (id != null) {
 		let i = 0;
 		let o = ordini[id];
-		let str = '<div><h3 class="text-center"><strong>Info Ordine #' + o.idOrdine + '</strong></h3></div><br><table class="table"><thead><tr><td><strong>Prodotto</strong></td><td><strong>qnt.</strong></td><td><strong>prezzo</strong></td></tr></thead><tbody>';
+		let str = '<div><h3 class="text-center"><strong>Info Ordine #' + o.idOrdine + '</strong></h3></div><br><table class="table"><thead><tr><th>Prodotto</th><th>qnt.</th><th>prezzo</th></tr></thead><tbody>';
 		$.each(o.prodotti, function (key, val) {
 			str += '<tr><td>' + val.nome + '</td><td>x' + o.quantita[i] + '</td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td></tr>';
 			i += 1;
@@ -483,7 +493,7 @@ function getPrenotazione(id) {
 		let date = new Date(p.dataPrenotazione),
 			dformat = [('0' + date.getDate()).slice(-2), ('0' + (date.getMonth() + 1)).slice(-2), date.getFullYear()].join('-');
 		let str = '<div><h3 class="text-center"><strong>Info Prenotazione #' + p.idPrenotazione + '</strong></h3></div><br><div><p>Data:&nbsp;&nbsp;&nbsp;' + dformat + '</p></div>';
-		str += '<table class="table"><thead><tr><td><strong>Postazione</strong></td><td><strong>prezzo</strong></td></tr></thead><tbody>';
+		str += '<table class="table"><thead><tr><th>Postazione</th><th>prezzo</th></tr></thead><tbody>';
 		$.each(p.postazioni, function (data, val) {
 			str += '<tr><td>#' + val.idPostazione + '</td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td></tr>';
 		});

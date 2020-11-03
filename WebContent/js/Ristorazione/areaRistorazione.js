@@ -43,7 +43,7 @@ function getOrdine(id) {
 	if (id != null) {
 		let i = 0;
 		let o = ordini[id];
-		let str = '<div><h3 class="text-center"><strong>Info Ordine #' + o.idOrdine + '</strong></h3></div><br><table class="table"><thead><tr><td><strong>Prodotto</strong></td><td><strong>qnt.</strong></td><td><strong>prezzo</strong></td></tr></thead><tbody>';
+		let str = '<div><h3 class="text-center"><strong>Info Ordine #' + o.idOrdine + '</strong></h3></div><br><table class="table"><thead><tr><th>Prodotto</th><th>qnt.</th><th>prezzo</th></tr></thead><tbody>';
 		$.each(o.prodotti, function (key, val) {
 			str += '<tr><td>' + val.nome + '</td><td>x' + o.quantita[i] + '</td><td>' + val.prezzo.toFixed(2) + '&nbsp;&euro;</td></tr>';
 			i += 1;
