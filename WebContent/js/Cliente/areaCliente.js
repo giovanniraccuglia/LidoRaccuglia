@@ -2,10 +2,8 @@ $(document).ready(function () {
 
 	loadPrenotazioniOrdini();
 
-	let date = new Date(),
-		dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
-	$("#date").val(dformat);
-	$('input[type="date"]').prop('min', dformat);
+	$("#date").val(setDate());
+	$('input[type="date"]').prop('min', setDate());
 
 	$('#linkNuovaPrenotazione').click(function () {
 		updateMappa();
@@ -21,7 +19,8 @@ $(document).ready(function () {
 	}, 300000); //richiesta ogni 3 minuti
 
 	$('#nuovaPrenotazione').click(function () {
-		if ($('#date').val() != null && postazioniSelezionate.length > 0) {
+		let date = $('#date').val();
+		if (checkInput(date) && postazioniSelezionate.length > 0) {
 			$('#modalNuovaPrenotazione').modal('hide');
 			$('#modalPagamento').modal('show');
 		} else {
@@ -30,10 +29,8 @@ $(document).ready(function () {
 	});
 
 	$('#closeNuovaPrenotazione').click(function () {
-		let date = new Date(),
-			dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
-		$("#date").val(dformat);
-		$('input[type="date"]').prop('min', dformat);
+		$("#date").val(setDate());
+		$('input[type="date"]').prop('min', setDate());
 		$('#divAlertNuovaPrenotazione').empty();
 		postazioniNonPrenotabili = [];
 		postazioniSelezionate = [];
@@ -46,11 +43,15 @@ $(document).ready(function () {
 	});
 
 	$('#nuovoOrdine').click(function () {
-		if (!(isEmpty(prodottiSelezionati))) {
-			$('#modalNuovoOrdine').modal('hide');
-			$('#modalPagamento').modal('show');
-		} else {
-			$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Selezionare uno o pi&ugrave; prodotti.</div>');
+		if(checkDate()) {
+			if (!(isEmpty(prodottiSelezionati))) {
+				$('#modalNuovoOrdine').modal('hide');
+				$('#modalPagamento').modal('show');
+			} else {
+				$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Selezionare uno o pi&ugrave; prodotti.</div>');
+			}
+		}else {
+			$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Gli ordini si possono effettuare solamente tra le ore 09:00 e le ore 19:00.</div>');
 		}
 	});
 
@@ -177,6 +178,40 @@ $(document).ready(function () {
 
 });
 
+function checkInput(val) {
+	if (val != null && val.trim() != "") {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function setDate() {
+	let date = new Date(),
+		dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+	let time = 'T13:00';
+	let day = 86400000;
+	if (date.getTime() > Date.parse(dformat + time)) {
+		let newDate = new Date(Date.parse(dformat) + day),
+			newDformat = [newDate.getFullYear(), ('0' + (newDate.getMonth() + 1)).slice(-2), ('0' + newDate.getDate()).slice(-2)].join('-');
+		return newDformat;
+	} else {
+		return dformat;
+	}
+}
+
+function checkDate() {
+	let date = new Date(),
+		dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+	let start = 'T09:00';
+	let end = 'T19:00';
+	if(date.getTime() > Date.parse(dformat + start) && date.getTime() < Date.parse(dformat + end)) {
+		return true;
+	}else {
+		return false;
+	}
+}
+
 var prenotazioni = {};
 var ordini = {};
 var postazioniNonPrenotabili = [];
@@ -284,7 +319,7 @@ function decrProdotto(id) {
 	}
 }
 
-function showMenu() { //modificato
+function showMenu() {
 	$.ajax({
 		url: './menu',
 		dataType: 'json',
@@ -339,30 +374,34 @@ function pagaOrdine() {
 }
 
 function ordina() {
-	if (!(isEmpty(prodottiSelezionati))) {
-		$.ajax({
-			url: './gestioneOrdine',
-			dataType: 'json',
-			type: 'post',
-			data: {
-				'prodotti': Object.keys(prodottiSelezionati).toString(),
-				'quantita': Object.values(prodottiSelezionati).toString()
-			},
-			success: function (data) {
-				if (data.ORDINATO == 'true') {
-					loadPrenotazioniOrdini();
-					prodottiSelezionati = {};
-					totaleOrdini = 0;
-					$('#totaleNuovoOrdine').html('<h3><strong>Totale:&nbsp;&nbsp;' + totaleOrdini.toFixed(2) + '&nbsp;&euro;</strong></h3>');
+	if(checkDate()) {
+		if (!(isEmpty(prodottiSelezionati))) {
+			$.ajax({
+				url: './gestioneOrdine',
+				dataType: 'json',
+				type: 'post',
+				data: {
+					'prodotti': Object.keys(prodottiSelezionati).toString(),
+					'quantita': Object.values(prodottiSelezionati).toString()
+				},
+				success: function (data) {
+					if (data.ORDINATO == 'true') {
+						loadPrenotazioniOrdini();
+						prodottiSelezionati = {};
+						totaleOrdini = 0;
+						$('#totaleNuovoOrdine').html('<h3><strong>Totale:&nbsp;&nbsp;' + totaleOrdini.toFixed(2) + '&nbsp;&euro;</strong></h3>');
+					}
+					$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>');
+				},
+				error: function (errorThrown) {
+					console.log(errorThrown);
 				}
-				$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>');
-			},
-			error: function (errorThrown) {
-				console.log(errorThrown);
-			}
-		});
-	} else {
-		$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Selezionare uno o pi&ugrave; prodotti.</div>');
+			});
+		} else {
+			$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Selezionare uno o pi&ugrave; prodotti.</div>');
+		}
+	}else {
+		$('#divAlertNuovoOrdine').html('<div class="alert alert-info center"><strong>Errore!</strong> Gli ordini si possono effettuare solamente tra le ore 09:00 e le ore 19:00.</div>');
 	}
 }
 
@@ -388,13 +427,14 @@ function pagaPrenotazione() {
 }
 
 function prenota() {
-	if ($('#date').val() != null && postazioniSelezionate.length > 0) {
+	let date = $('#date').val();
+	if (checkInput(date) && postazioniSelezionate.length > 0) {
 		$.ajax({
 			url: './gestionePrenotazione',
 			dataType: 'json',
 			type: 'post',
 			data: {
-				'dataPrenotazione': $('#date').val(),
+				'dataPrenotazione': date,
 				'postazioni': postazioniSelezionate.sort().toString()
 			},
 			success: function (data) {
@@ -429,13 +469,14 @@ function selectPostazione(id) {
 }
 
 function updateMappa() {
-	if ($('#date').val() != null) {
+	let date = $('#date').val();
+	if (checkInput(date)) {
 		$.ajax({
 			url: './spiaggia',
 			dataType: 'json',
 			type: 'post',
 			data: {
-				'dataPrenotazione': $('#date').val()
+				'dataPrenotazione': date
 			},
 			success: function (data) {
 				buildMappa(data[0]);

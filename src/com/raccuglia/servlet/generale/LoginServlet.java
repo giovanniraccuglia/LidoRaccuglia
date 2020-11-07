@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class LoginServlet
@@ -47,7 +48,7 @@ public class LoginServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(email != null && password != null) {
+			if(LidoUtil.checkInput(email) && LidoUtil.checkInput(password)) {
 				Utente utente = DBMS.login(email, password);
 				if(utente != null) {
 					request.getSession().setAttribute("utente", utente);

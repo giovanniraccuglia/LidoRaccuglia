@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
 import com.raccuglia.utils.InvioEmail;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class ModificaPasswordServlet
@@ -54,7 +55,7 @@ public class ModificaPasswordServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(vecchiaPassword != null && nuovaPassword != null && confermaPassword != null) {
+			if(LidoUtil.checkInput(vecchiaPassword) && LidoUtil.checkInput(nuovaPassword) && LidoUtil.checkInput(confermaPassword)) {
 				if(nuovaPassword.equals(confermaPassword)) {
 					Utente utente = (Utente) request.getSession().getAttribute("utente");
 					if(DBMS.verificaPassword(utente.getIdUtente(), vecchiaPassword)) {

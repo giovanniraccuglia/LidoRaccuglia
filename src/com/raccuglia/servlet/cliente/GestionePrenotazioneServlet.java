@@ -18,6 +18,7 @@ import com.raccuglia.model.Postazione;
 import com.raccuglia.model.Prenotazione;
 import com.raccuglia.model.Utente;
 import com.raccuglia.utils.InvioEmail;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class GestionePrenotazioneServlet
@@ -73,22 +74,36 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 	
 	private void cancellaPrenotazione(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
-			int idPrenotazione = Integer.parseInt(request.getParameter("id"));
-			Prenotazione prenotazione = DBMS.getPrenotazione(idUtente, idPrenotazione);
+			String id = request.getParameter("id");
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			Date dataPrenotazione = prenotazione.getDataPrenotazione();
-			Date tomorrow = new Date(System.currentTimeMillis() + 86400000);
-			if(prenotazione.isRimborsato()) {
-				status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prenotazione gi&agrave; annullata.\"}";
-			}else if(dataPrenotazione.before(tomorrow)) {
-				status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"La prenotazione non pu&ograve; pi&ugrave; essere annullata.\"}";
+			if(LidoUtil.checkInput(id)) {
+				int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
+				int idPrenotazione = Integer.parseInt(id);
+				Prenotazione prenotazione = DBMS.getPrenotazione(idUtente, idPrenotazione);
+				if(prenotazione != null) {
+					Date dataPrenotazione = prenotazione.getDataPrenotazione();
+					Date tomorrow = new Date(System.currentTimeMillis() + 86400000);
+					if(prenotazione.isRimborsato()) {
+						status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prenotazione gi&agrave; annullata.\"}";
+					}else if(dataPrenotazione.before(tomorrow)) {
+						status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"La prenotazione non pu&ograve; pi&ugrave; essere annullata.\"}";
+					}else {
+						String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
+						SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+						DBMS.deletePrenotazione(idUtente, idPrenotazione);
+						String oggetto = "MARRAKECH BEACH";
+						String messaggio = "Gentile Cliente, La informiamo che la sua prenotazione per la data: " + sdf.format(dataPrenotazione) + " è stata annullata con successo.";
+						InvioEmail.sendEmail(email, messaggio, oggetto);
+						status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prenotazione annullata correttamente.\"}";
+					}
+				}else {
+					status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Impossibile annullare la prenotazione.\"}";
+				}
 			}else {
-				DBMS.deletePrenotazione(idUtente, idPrenotazione);
-				status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prenotazione annullata correttamente.\"}";
-			}
+				status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Impossibile annullare la prenotazione.\"}";
+			}			
 			pr.write(status);
 		}catch(Exception e) {
 			response.sendError(400);
@@ -97,31 +112,35 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 	
 	private void prenota(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			Date dataPrenotazione = Date.valueOf(request.getParameter("dataPrenotazione"));
+			String data = request.getParameter("dataPrenotazione");
 			String postazioni = request.getParameter("postazioni");
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			Date today = new Date(System.currentTimeMillis());
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(dataPrenotazione != null && postazioni != null && postazioni.length() > 0 && (dataPrenotazione.compareTo(Date.valueOf(sdf.format(today))) == 0 || dataPrenotazione.after(Date.valueOf(sdf.format(today))))) {
-				String[] idPostazioni = postazioni.split(",");
-				List<Postazione> postazioniSelezionate = new ArrayList<>();
-				for(int i = 0; i < idPostazioni.length; i++) {
-					postazioniSelezionate.add(DBMS.getPostazioneFromId(Integer.parseInt(idPostazioni[i])));
-				}
-				List<Postazione> postazioniNonPrenotabili = DBMS.getPostazioniPrenotate(dataPrenotazione);
-				if(checkPostazioni(postazioniSelezionate, postazioniNonPrenotabili) == false) {
-					int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
-					String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
-					DBMS.inserisciPrenotazione(dataPrenotazione, getTotale(postazioniSelezionate), idUtente, postazioniSelezionate);
-					SimpleDateFormat sdf1 = new SimpleDateFormat("dd-MM-yyyy");
-					String oggetto = "MARRAKECH BEACH";
-					String messaggio = "Gentile Cliente, La informiamo che la sua prenotazione per la data: " + sdf1.format(dataPrenotazione) + " è avvenuta con successo. Le auguriamo una buona permanenza in struttura.";
-					InvioEmail.sendEmail(email, messaggio, oggetto);
-					status = "{\"PRENOTATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Pronotazione effettuata correttamente.\"}";
+			if(LidoUtil.checkInput(data) && LidoUtil.checkInput(postazioni)) {
+				Date dataPrenotazione = Date.valueOf(data);
+				String time = "13:00:00";
+				if(dataPrenotazione.compareTo(Date.valueOf(LidoUtil.setDate(time))) == 0 || dataPrenotazione.after(Date.valueOf(LidoUtil.setDate(time)))) {
+					String[] idPostazioni = postazioni.split(",");
+					List<Postazione> postazioniSelezionate = new ArrayList<>();
+					for(int i = 0; i < idPostazioni.length; i++) {
+						postazioniSelezionate.add(DBMS.getPostazioneFromId(Integer.parseInt(idPostazioni[i])));
+					}
+					List<Postazione> postazioniNonPrenotabili = DBMS.getPostazioniPrenotate(dataPrenotazione);
+					if(checkPostazioni(postazioniSelezionate, postazioniNonPrenotabili) == false) {
+						int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
+						String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
+						DBMS.inserisciPrenotazione(dataPrenotazione, getTotale(postazioniSelezionate), idUtente, postazioniSelezionate);
+						SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+						String oggetto = "MARRAKECH BEACH";
+						String messaggio = "Gentile Cliente, La informiamo che la sua prenotazione per la data: " + sdf.format(dataPrenotazione) + " è avvenuta con successo. Le auguriamo una buona permanenza in struttura.";
+						InvioEmail.sendEmail(email, messaggio, oggetto);
+						status = "{\"PRENOTATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Pronotazione effettuata correttamente.\"}";
+					}else {
+						status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Una o pi&ugrave; postazioni sono gi&agrave; prenotate.\"}";
+					}
 				}else {
-					status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Una o pi&ugrave; postazioni sono gi&agrave; prenotate.\"}";
+					status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Inserire una data valida e selezionare una o pi&ugrave; postazioni.\"}";
 				}
 			}else {
 				status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Inserire una data valida e selezionare una o pi&ugrave; postazioni.\"}";

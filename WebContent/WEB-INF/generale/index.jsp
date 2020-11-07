@@ -89,10 +89,10 @@
                   </ul>
                   <div class="carousel-inner">
                      <div class="carousel-item active">
-                        <img src="https://img.grouponcdn.com/deal/gqjG1ivbMT3fGjLs97w2/Lv-2048x1228/v1/c700x420.webp" alt="Sdraio" width="700" height="350">
+                        <img src="img/sdraio.webp" alt="Sdraio" width="700" height="350"/>
                      </div>
                      <div class="carousel-item">
-                        <img src="https://img.grouponcdn.com/deal/TME5nFxkGV3881fEiM6BRGpqUsf/TM-2048x1229/v1/c700x420.webp" alt="Spiaggia" width="700" height="350">
+                        <img src="img/spiaggia.webp" alt="Spiaggia" width="700" height="350"/>
                      </div>
                   </div>
                   <a class="carousel-control-prev" href="#demo" data-slide="prev">
@@ -114,10 +114,10 @@
                   </ul>
                   <div class="carousel-inner">
                      <div class="carousel-item active">
-                        <img src="https://www.mediterraneosorrento.com/wp-content/uploads/2019/09/Mediterraneo-39slide.jpg" alt="Tramonto" width="700" height="350">
+                        <img src="img/tramonto.jpg" alt="Tramonto" width="700" height="350"/>
                      </div>
                      <div class="carousel-item">
-                        <img src="https://www.ilmeridianonews.it/wp-content/uploads/2019/07/aperitivo-in-spiaggia-660x330.jpg" alt="Drink" width="700" height="350">
+                        <img src="img/drink.jpg" alt="Drink" width="700" height="350"/>
                      </div>
                   </div>
                   <a class="carousel-control-prev" href="#demo1" data-slide="prev">

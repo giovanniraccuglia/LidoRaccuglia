@@ -10,6 +10,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import com.raccuglia.model.Ordine;
 import com.raccuglia.model.Postazione;
 import com.raccuglia.model.Prenotazione;
@@ -17,6 +22,7 @@ import com.raccuglia.model.Prodotto;
 import com.raccuglia.model.Utente;
 
 public class DBMS {
+	
 	private static String jdbcURL = "jdbc:mysql://localhost:3306/Raccuglia?serverTimezone=Europe/Rome";
 	private static String jdbcUsername = "root";
 	private static String jdbcPassword = "24121996";
@@ -32,6 +38,30 @@ public class DBMS {
 		}
 		return null;
 	}
+	
+	/*
+	private static Context context = null;
+	private static DataSource dataSource = null;
+	
+	static {
+		try {
+			context = new InitialContext();
+			dataSource = (DataSource) context.lookup("java:comp/env/jdbc/Raccuglia");
+			}
+		catch (NamingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static Connection getConnection() {
+		try {
+			return dataSource.getConnection();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	*/
 	
 	public static void printSQLException(SQLException ex) {
         for (Throwable e: ex) {

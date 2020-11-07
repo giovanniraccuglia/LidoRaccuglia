@@ -2,7 +2,6 @@ package com.raccuglia.servlet.generale;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.SecureRandom;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
 import com.raccuglia.utils.InvioEmail;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class ResetPasswordServlet
@@ -48,9 +48,9 @@ public class ResetPasswordServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(email != null) {
+			if(LidoUtil.checkInput(email)) {
 				if(DBMS.verificaUtente(email, "")) {
-					String password = genPassword(5);
+					String password = LidoUtil.genPassword(5);
 					String oggetto = "RESET PASSWORD";
 					String messaggio = "Gentile Cliente, questa è la sua nuova password: '" + password + "'. Per ragioni di sicurezza è consigliabile cambiare la password dopo l'accesso.";
 					DBMS.resetPassword(email, password);
@@ -68,24 +68,4 @@ public class ResetPasswordServlet extends HttpServlet {
 			response.sendError(400);
 		}
 	}
-	
-	private String genPassword(int len) { //Soluzione provvisoria
-    	final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    	final String chars1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    	final String chars2 = "abcdefghijklmnopqrstuvwxyz";
-    	final String chars3 = "0123456789";
-    	SecureRandom random = new SecureRandom();
-    	StringBuilder sb = new StringBuilder();
-    	for(int i = 0; i < len; i++) {
-    		int randomIndex = random.nextInt(chars.length());
-    		sb.append(chars.charAt(randomIndex));
-    	}
-    	int randomIndex1 = random.nextInt(chars1.length());
-    	int randomIndex2 = random.nextInt(chars2.length());
-    	int randomIndex3 = random.nextInt(chars3.length());
-		sb.append(chars1.charAt(randomIndex1));
-		sb.append(chars2.charAt(randomIndex2));
-		sb.append(chars3.charAt(randomIndex3));
-    	return sb.toString();
-    }
 }

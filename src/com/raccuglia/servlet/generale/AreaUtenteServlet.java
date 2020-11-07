@@ -3,7 +3,6 @@ package com.raccuglia.servlet.generale;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +20,7 @@ import com.raccuglia.model.Postazione;
 import com.raccuglia.model.Prenotazione;
 import com.raccuglia.model.Prodotto;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class AreaUtenteServlet
@@ -124,20 +124,22 @@ public class AreaUtenteServlet extends HttpServlet {
 	
 	private void visualizzaSpiaggia(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			Date dataPrenotazione = Date.valueOf(request.getParameter("dataPrenotazione"));
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			Date today = new Date(System.currentTimeMillis());
-			if(dataPrenotazione != null && (dataPrenotazione.compareTo(Date.valueOf(sdf.format(today))) == 0 || dataPrenotazione.after(Date.valueOf(sdf.format(today))))) {
-				List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
-				List<Postazione> postazioni = DBMS.getPostazioni();
-				List<Utente> utentiPrenotati = new ArrayList<>();
-				for(int i = 0; i < postazioniPrenotate.size(); i++) {
-					utentiPrenotati.add(DBMS.getUtenteFromPostazione(dataPrenotazione, postazioniPrenotate.get(i).getIdPostazione()));
+			String data = request.getParameter("dataPrenotazione");
+			if(LidoUtil.checkInput(data)) {
+				Date dataPrenotazione = Date.valueOf(data);
+				String time = "19:00:00";
+				if(dataPrenotazione.compareTo(Date.valueOf(LidoUtil.setDate(time))) == 0 || dataPrenotazione.after(Date.valueOf(LidoUtil.setDate(time)))) {
+					List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
+					List<Postazione> postazioni = DBMS.getPostazioni();
+					List<Utente> utentiPrenotati = new ArrayList<>();
+					for(int i = 0; i < postazioniPrenotate.size(); i++) {
+						utentiPrenotati.add(DBMS.getUtenteFromPostazione(dataPrenotazione, postazioniPrenotate.get(i).getIdPostazione()));
+					}
+					PrintWriter pr = response.getWriter();
+					response.setContentType("application/json");
+					ObjectMapper mapper = new ObjectMapper();
+					pr.write("[" + mapper.writeValueAsString(postazioniPrenotate) + "," + mapper.writeValueAsString(utentiPrenotati) + "," + mapper.writeValueAsString(postazioni) + "]");
 				}
-				PrintWriter pr = response.getWriter();
-				response.setContentType("application/json");
-				ObjectMapper mapper = new ObjectMapper();
-				pr.write("[" + mapper.writeValueAsString(postazioniPrenotate) + "," + mapper.writeValueAsString(utentiPrenotati) + "," + mapper.writeValueAsString(postazioni) + "]");
 			}
 		}catch(Exception e) {
 			e.printStackTrace();

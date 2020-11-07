@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class GestioneOrdiniServlet
@@ -46,15 +47,22 @@ public class GestioneOrdiniServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			int idOrdine = Integer.parseInt(request.getParameter("id"));
-			Boolean pronto = Boolean.parseBoolean(request.getParameter("pronto"));
-			Boolean ritirato = Boolean.parseBoolean(request.getParameter("ritirato"));
-			if(pronto != null && pronto.equals(true) && ritirato != null && ritirato.equals(false)) {
-				DBMS.updateOrdine(idOrdine, pronto, ritirato);
-				status = "{\"CHECK\" : \"true\"}";
-			}else if(pronto != null && pronto.equals(true) && ritirato != null && ritirato.equals(true)) {
-				DBMS.updateOrdine(idOrdine, pronto, ritirato);
-				status = "{\"CHECK\" : \"true\"}";
+			String id = request.getParameter("id");
+			String p = request.getParameter("pronto");
+			String r = request.getParameter("ritirato");
+			if(LidoUtil.checkInput(id) && LidoUtil.checkInput(p) && LidoUtil.checkInput(r)) {
+				int idOrdine = Integer.parseInt(id);
+				Boolean pronto = Boolean.parseBoolean(p);
+				Boolean ritirato = Boolean.parseBoolean(r);
+				if(pronto.equals(true) && ritirato.equals(false)) {
+					DBMS.updateOrdine(idOrdine, pronto, ritirato);
+					status = "{\"CHECK\" : \"true\"}";
+				}else if(pronto.equals(true) && ritirato.equals(true)) {
+					DBMS.updateOrdine(idOrdine, pronto, ritirato);
+					status = "{\"CHECK\" : \"true\"}";
+				}else {
+					status = "{\"CHECK\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Impossibile effettuare l\'operazione.\"}";
+				}
 			}else {
 				status = "{\"CHECK\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Impossibile effettuare l\'operazione.\"}";
 			}

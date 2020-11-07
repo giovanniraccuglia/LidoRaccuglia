@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
 import com.raccuglia.utils.InvioEmail;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class RegistrazioneServlet
@@ -52,7 +53,7 @@ public class RegistrazioneServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(nome != null && cognome != null && cellulare != null && email != null && password != null && ripassword !=  null) {
+			if(LidoUtil.checkInput(nome) && LidoUtil.checkInput(cognome) && LidoUtil.checkInput(cellulare) && LidoUtil.checkInput(email) && LidoUtil.checkInput(password) && LidoUtil.checkInput(ripassword)) {
 				if(password.equals(ripassword)) {
 					if(DBMS.verificaUtente(email, cellulare)) {
 						status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account gi&agrave; presente.\"}";

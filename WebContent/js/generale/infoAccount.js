@@ -17,12 +17,20 @@ $(document).ready(function () {
 
 });
 
+function checkInput(val) {
+	if (val != null && val.trim() != "") {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 function updateInfoAccount() {
 	let nome = $('#nomeInfoAccount').val();
 	let cognome = $('#cognomeInfoAccount').val();
 	let cellulare = $('#cellulareInfoAccount').val();
 	let email = $('#emailInfoAccount').val();
-	if (nome != null && cognome != null && cellulare != null && email != null) {
+	if (checkInput(nome) && checkInput(cognome) && checkInput(cellulare) && checkInput(email)) {
 		$.ajax({
 			url: './infoAccount',
 			dataType: 'json',
@@ -65,7 +73,7 @@ function updatePassword() {
 	let vecchiaPassword = $('#vecchiaPassword').val();
 	let nuovaPassword = $('#nuovaPassword').val();
 	let confermaPassword = $('#confermaPassword').val();
-	if (vecchiaPassword != null && nuovaPassword != null && confermaPassword != null) {
+	if (checkInput(vecchiaPassword) && checkInput(nuovaPassword) && checkInput(confermaPassword)) {
 		$.ajax({
 			url: './modificaPassword',
 			dataType: 'json',

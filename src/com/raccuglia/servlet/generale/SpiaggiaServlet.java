@@ -3,7 +3,6 @@ package com.raccuglia.servlet.generale;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Postazione;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class SpiaggiaServlet
@@ -41,16 +41,18 @@ public class SpiaggiaServlet extends HttpServlet {
 	
 	private void spiaggiaPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			Date dataPrenotazione = Date.valueOf(request.getParameter("dataPrenotazione"));
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			Date today = new Date(System.currentTimeMillis());
-			if(dataPrenotazione != null && (dataPrenotazione.compareTo(Date.valueOf(sdf.format(today))) == 0 || dataPrenotazione.after(Date.valueOf(sdf.format(today))))) {
-				List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
-				List<Postazione> postazioni = DBMS.getPostazioni();
-				PrintWriter pr = response.getWriter();
-				response.setContentType("application/json");
-				ObjectMapper mapper = new ObjectMapper();
-				pr.write("[" + mapper.writeValueAsString(postazioni) + "," + mapper.writeValueAsString(postazioniPrenotate) + "]");
+			String data = request.getParameter("dataPrenotazione");
+			if(LidoUtil.checkInput(data)) {
+				Date dataPrenotazione = Date.valueOf(data);
+				String time = "19:00:00";
+				if(dataPrenotazione.compareTo(Date.valueOf(LidoUtil.setDate(time))) == 0 || dataPrenotazione.after(Date.valueOf(LidoUtil.setDate(time)))) {
+					List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
+					List<Postazione> postazioni = DBMS.getPostazioni();
+					PrintWriter pr = response.getWriter();
+					response.setContentType("application/json");
+					ObjectMapper mapper = new ObjectMapper();
+					pr.write("[" + mapper.writeValueAsString(postazioni) + "," + mapper.writeValueAsString(postazioniPrenotate) + "]");
+				}
 			}
 		}catch(Exception e) {
 			e.printStackTrace();

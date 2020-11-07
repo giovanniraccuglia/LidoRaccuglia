@@ -24,13 +24,21 @@ $(document).ready(function () {
 
 });
 
+function checkInput(val) {
+	if (val != null && val.trim() != "") {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 function addDipendente() {
 	let nome = $('#nomeNuovoDipendente').val();
 	let cognome = $('#cognomeNuovoDipendente').val();
 	let cellulare = $('#cellulareNuovoDipendente').val();
 	let email = $('#emailNuovoDipendente').val();
 	let ruolo = $('#ruoloNuovoDipendente').val();
-	if (nome != null && cognome != null && cellulare != null && email != null && ruolo != null) {
+	if (checkInput(nome) && checkInput(cognome) && checkInput(cellulare) && checkInput(email) && checkInput(ruolo)) {
 		$.ajax({
 			url: './gestioneDipendente',
 			dataType: 'json',
@@ -55,7 +63,7 @@ function addDipendente() {
 		});
 	} else {
 		$('#formNuovoDipendente').trigger('reset');
-		$('#divAlertNuovoDipendente').html('<div class="alert alert-info center"><strong>Errore</strong> Inserire i dati nei relativi campi.</div>');
+		$('#divAlertNuovoDipendente').html('<div class="alert alert-info center"><strong>Errore!</strong> Inserire i dati nei relativi campi.</div>');
 	}
 }
 
@@ -64,7 +72,7 @@ function addProdotto() {
 	let descrizione = $('#descrizioneNuovoProdotto').val();
 	let prezzo = $('#prezzoNuovoProdotto').val();
 	let categoria = $('#categoriaNuovoProdotto').val();
-	if (nome != null && descrizione != null && prezzo != null && categoria != null) {
+	if (checkInput(nome) && checkInput(descrizione) && checkInput(prezzo) && checkInput(categoria)) {
 		$.ajax({
 			url: './gestioneProdotto',
 			dataType: 'json',
@@ -76,7 +84,7 @@ function addProdotto() {
 				'categoria': categoria
 			},
 			success: function (data) {
-				if (data.AGGIUNTO == 'true') {
+				if (data.INSERIMENTO == 'true') {
 					loadDipendentiProdotti();
 				}
 				$('#formNuovoProdotto').trigger('reset');
@@ -122,8 +130,10 @@ function deleteDipendente(id) {
 			dataType: 'json',
 			type: 'delete',
 			success: function (data) {
+				if(data.CANCELLAZIONE == 'true') {
+					$('button[data-id=' + id + ']').parent().parent().remove();
+				}
 				$('#divAlertDipendente').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>').show();
-				$('button[data-id=' + id + ']').parent().parent().remove();
 				$('#divAlertDipendente').delay(3000).fadeOut();
 			},
 			error: function (errorThrown) {
@@ -143,8 +153,10 @@ function deleteProdotto(id) {
 			dataType: 'json',
 			type: 'delete',
 			success: function (data) {
+				if(data.CANCELLAZIONE == 'true') {
+					$('button[data-id=' + id + ']').parent().parent().remove();
+				}
 				$('#divAlertProdotto').html('<div class="alert alert-info center"><strong>' + data.TYPE + '</strong> ' + data.NOTIFICATION + '</div>').show();
-				$('button[data-id=' + id + ']').parent().parent().remove();
 				$('#divAlertProdotto').delay(3000).fadeOut();
 			},
 			error: function (errorThrown) {

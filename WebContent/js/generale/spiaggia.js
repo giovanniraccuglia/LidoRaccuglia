@@ -1,9 +1,7 @@
 $(document).ready(function () {
-
-	let date = new Date(),
-		dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
-	$("#date").val(dformat);
-	$('input[type="date"]').prop('min', dformat);
+	
+	$("#date").val(setDate());
+	$('input[type="date"]').prop('min', setDate());
 
 	$('#linkSpiaggia').click(function () {
 		updateMappa();
@@ -18,22 +16,43 @@ $(document).ready(function () {
 	}, 500000); //richiesta ogni 5 minuti
 
 	$('#closeSpiaggia').click(function () {
-		let date = new Date(),
-			dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
-		$("#date").val(dformat);
-		$('input[type="date"]').prop('min', dformat);
+		$("#date").val(setDate());
+		$('input[type="date"]').prop('min', setDate());
 	});
 
 });
 
+function checkInput(val) {
+	if (val != null && val.trim() != "") {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function setDate() {
+	let date = new Date(),
+		dformat = [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+	let time = 'T19:00';
+	let day = 86400000;
+	if (date.getTime() > Date.parse(dformat + time)) {
+		let newDate = new Date(Date.parse(dformat) + day),
+			newDformat = [newDate.getFullYear(), ('0' + (newDate.getMonth() + 1)).slice(-2), ('0' + newDate.getDate()).slice(-2)].join('-');
+		return newDformat;
+	} else {
+		return dformat;
+	}
+}
+
 function updateMappa() {
-	if ($('#date').val() != null) {
+	let date = $('#date').val();
+	if (checkInput(date)) {
 		$.ajax({
 			url: './spiaggia',
 			dataType: 'json',
 			type: 'post',
 			data: {
-				'dataPrenotazione': $('#date').val()
+				'dataPrenotazione': date
 			},
 			success: function (data) {
 				buildMappa(data[0]);

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class GestioneProdotto
@@ -66,12 +67,17 @@ public class GestioneProdottoServlet extends HttpServlet {
 	
 	private void cancellaProdotto(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			int idProdotto = Integer.parseInt(request.getParameter("id"));
+			String id = request.getParameter("id");
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			DBMS.deleteProdotto(idProdotto);
-			status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prodotto eliminato correttamente.\"}";
+			if(LidoUtil.checkInput(id)) {
+				int idProdotto = Integer.parseInt(id);
+				DBMS.deleteProdotto(idProdotto);
+				status = "{\"CANCELLAZIONE\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prodotto eliminato correttamente.\"}";
+			}else {
+				status = "{\"CANCELLAZIONE\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Impossibile eliminare il prodotto selezionato.\"}";
+			}
 			pr.write(status);
 		}catch(Exception e) {
 			response.sendError(400);
@@ -82,21 +88,20 @@ public class GestioneProdottoServlet extends HttpServlet {
 		try {
 			String nome = request.getParameter("nome");
 			String descrizione = request.getParameter("descrizione");
-			Double prezzo = Double.parseDouble(request.getParameter("prezzo"));
+			String prezzo = request.getParameter("prezzo");
 			String categoria = request.getParameter("categoria");
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(nome != null && descrizione != null && prezzo != null && categoria != null) {
+			if(LidoUtil.checkInput(nome) && LidoUtil.checkInput(descrizione) && LidoUtil.checkInput(prezzo) && LidoUtil.checkInput(categoria)) {
 				if(DBMS.verificaProdotto(nome)) {
-					status = "{\"AGGIUNTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prodotto gi&agrave; presente.\"}";
+					status = "{\"INSERIMENTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Prodotto gi&agrave; presente.\"}";
 				}else {
-					DBMS.aggiungiProdotto(nome, descrizione, prezzo, categoria);
-					int idProdotto = DBMS.getProdotto(nome).getIdProdotto();
-					status = "{\"AGGIUNTO\" : \"true\", \"ID\" : \"" + idProdotto + "\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prodotto inserito correttamente.\"}";
+					DBMS.aggiungiProdotto(nome, descrizione, Double.parseDouble(prezzo), categoria);
+					status = "{\"INSERIMENTO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prodotto inserito correttamente.\"}";
 				}
 			}else {
-				status = "{\"AGGIUNTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Inserire i dati nei relativi campi.\"}";
+				status = "{\"INSERIMENTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Inserire i dati nei relativi campi.\"}";
 			}
 			pr.write(status);
 		}catch(Exception e) {

@@ -15,6 +15,7 @@ import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Prodotto;
 import com.raccuglia.model.Utente;
 import com.raccuglia.utils.InvioEmail;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class GestioneOrdineServlet
@@ -60,28 +61,32 @@ public class GestioneOrdineServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(prodotti != null && prodotti.length() > 0 && quantita != null && quantita.length() > 0) {
-				String[] idProdotti = prodotti.split(",");
-				String[] quantitaProdotti = quantita.split(",");
-				if(idProdotti.length == quantitaProdotti.length) {
-					List<Prodotto> prodottiSelezionati = new ArrayList<>();
-					List<Integer> quantitaProdottiSelezionati = new ArrayList<>();
-					for(int i = 0; i < idProdotti.length; i++) {
-						prodottiSelezionati.add(DBMS.getProdottoFromId(Integer.parseInt(idProdotti[i])));
-						quantitaProdottiSelezionati.add(Integer.parseInt(quantitaProdotti[i]));
+			if(LidoUtil.checkDate("09:00:00", "19:00:00")) {
+				if(LidoUtil.checkInput(prodotti) && LidoUtil.checkInput(quantita)) {
+					String[] idProdotti = prodotti.split(",");
+					String[] quantitaProdotti = quantita.split(",");
+					if(idProdotti.length == quantitaProdotti.length) {
+						List<Prodotto> prodottiSelezionati = new ArrayList<>();
+						List<Integer> quantitaProdottiSelezionati = new ArrayList<>();
+						for(int i = 0; i < idProdotti.length; i++) {
+							prodottiSelezionati.add(DBMS.getProdottoFromId(Integer.parseInt(idProdotti[i])));
+							quantitaProdottiSelezionati.add(Integer.parseInt(quantitaProdotti[i]));
+						}
+						int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
+						String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
+						DBMS.inserisciOrdine(getTotale(prodottiSelezionati, quantitaProdottiSelezionati), idUtente, prodottiSelezionati, quantitaProdottiSelezionati);
+						String oggetto = "MARRAKECH BEACH";
+						String messaggio = "Gentile Cliente, La informiamo che il suo ordine è andato a buon fine. Le ricordiamo che nell'Area Clienti potrà visionare lo status del suo ordine.";
+						InvioEmail.sendEmail(email, messaggio, oggetto);
+						status = "{\"ORDINATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Ordine effettuato correttamente.\"}";
+					}else {
+						status = "{\"ORDINATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Selezionare i prodotti correttamente.\"}";
 					}
-					int idUtente = ((Utente) request.getSession().getAttribute("utente")).getIdUtente();
-					String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
-					DBMS.inserisciOrdine(getTotale(prodottiSelezionati, quantitaProdottiSelezionati), idUtente, prodottiSelezionati, quantitaProdottiSelezionati);
-					String oggetto = "MARRAKECH BEACH";
-					String messaggio = "Gentile Cliente, La informiamo che il suo ordine è andato a buon fine. Le ricordiamo che nell'Area Clienti potrà visionare lo status del suo ordine.";
-					InvioEmail.sendEmail(email, messaggio, oggetto);
-					status = "{\"ORDINATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Ordine effettuato correttamente.\"}";
 				}else {
-					status = "{\"ORDINATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Selezionare i prodotti correttamente.\"}";
+					status = "{\"ORDINATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Selezionare uno o pi&ugrave; prodotti.\"}";
 				}
 			}else {
-				status = "{\"ORDINATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Selezionare uno o pi&ugrave; prodotti.\"}";
+				status = "{\"ORDINATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Gli ordini si possono effettuare solamente tra le ore 09:00 e le ore 19:00.\"}";
 			}
 			pr.write(status);
 		}catch(Exception e) {

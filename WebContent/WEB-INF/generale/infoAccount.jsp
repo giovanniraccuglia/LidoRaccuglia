@@ -11,7 +11,7 @@
       <div class="col-sm-4" style="padding-right: 5%">
          <br>
          <div class="text-center">
-            <img src="https://img.icons8.com/officel/200/000000/about-us-male--v2.png"/>
+            <img src="img/user.png" alt="user"/>
          </div>
          <div id="divInfoAccount" style="font-style: normal"></div>
          <form id="formInfoAccount" method="post">

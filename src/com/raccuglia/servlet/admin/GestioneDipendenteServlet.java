@@ -2,7 +2,6 @@ package com.raccuglia.servlet.admin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.SecureRandom;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
 import com.raccuglia.utils.InvioEmail;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class GestioneDipendenteServlet
@@ -68,11 +68,17 @@ public class GestioneDipendenteServlet extends HttpServlet {
 	
 	private void cancellaDipendente(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			int idUtente = Integer.parseInt(request.getParameter("id"));
+			String id = request.getParameter("id");
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
-			DBMS.deleteDipendente(idUtente);
-			String status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Account eliminato correttamente.\"}";
+			String status;
+			if(LidoUtil.checkInput(id)) {
+				int idUtente = Integer.parseInt(id);
+				DBMS.deleteDipendente(idUtente);
+				status = "{\"CANCELLAZIONE\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Account eliminato correttamente.\"}";
+			}else {
+				status = "{\"CANCELLAZIONE\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Impossibile eliminare l'account dell'utente selezionato.\"}";
+			}
 			pr.write(status);
 		}catch(Exception e) {
 			response.sendError(400);
@@ -89,17 +95,16 @@ public class GestioneDipendenteServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(nome != null && cognome != null && cellulare != null && email != null && ruolo != null) {
+			if(LidoUtil.checkInput(nome) && LidoUtil.checkInput(cognome) && LidoUtil.checkInput(cellulare) && LidoUtil.checkInput(email) && LidoUtil.checkInput(ruolo)) {
 				if(DBMS.verificaUtente(email, cellulare)) {
 					status = "{\"INSERIMENTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account gi&agrave; presente.\"}";
 				}else {
-					String password = genPassword(5);
+					String password = LidoUtil.genPassword(5);
 					String oggetto = "ACCOUNT AZIENDALE MARRAKECH BEACH";
 					String messaggio = "Benvenuto nella famiglia di Marrakech Beach, queste sono le tue credenziali per accedere al tuo account aziendale. Email: '" + email + "' - Password: '" + password + "'. Per ragioni di sicurezza è consigliabile cambiare la password dopo l'accesso.";
 					DBMS.registrazioneDipendente(nome, cognome, cellulare, email, password, ruolo);
 					InvioEmail.sendEmail(email, messaggio, oggetto);
-					int idDipendente = DBMS.getUtente(email).getIdUtente();
-					status = "{\"INSERIMENTO\" : \"true\", \"ID\" : \"" + idDipendente + "\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Account registrato correttamente.\"}";
+					status = "{\"INSERIMENTO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Account registrato correttamente.\"}";
 				}
 			}else {
 				status = "{\"INSERIMENTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Inserire i dati nei relativi campi.\"}";
@@ -110,24 +115,4 @@ public class GestioneDipendenteServlet extends HttpServlet {
 			response.sendError(400);
 		}
 	}
-	
-	private String genPassword(int len) { //Soluzione provvisoria
-    	final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    	final String chars1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    	final String chars2 = "abcdefghijklmnopqrstuvwxyz";
-    	final String chars3 = "0123456789";
-    	SecureRandom random = new SecureRandom();
-    	StringBuilder sb = new StringBuilder();
-    	for(int i = 0; i < len; i++) {
-    		int randomIndex = random.nextInt(chars.length());
-    		sb.append(chars.charAt(randomIndex));
-    	}
-    	int randomIndex1 = random.nextInt(chars1.length());
-    	int randomIndex2 = random.nextInt(chars2.length());
-    	int randomIndex3 = random.nextInt(chars3.length());
-		sb.append(chars1.charAt(randomIndex1));
-		sb.append(chars2.charAt(randomIndex2));
-		sb.append(chars3.charAt(randomIndex3));
-    	return sb.toString();
-    }
 }

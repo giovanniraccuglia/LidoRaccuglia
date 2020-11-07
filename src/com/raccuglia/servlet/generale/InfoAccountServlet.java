@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.raccuglia.DB.DBMS;
 import com.raccuglia.model.Utente;
+import com.raccuglia.utils.LidoUtil;
 
 /**
  * Servlet implementation class InfoAccountServlet
@@ -57,7 +58,7 @@ public class InfoAccountServlet extends HttpServlet {
 			response.setContentType("application/json");
 			ObjectMapper mapper = new ObjectMapper();
 			String status;
-			if(nome != null && cognome != null && cellulare != null && email != null) {
+			if(LidoUtil.checkInput(nome) && LidoUtil.checkInput(cognome) && LidoUtil.checkInput(cellulare) && LidoUtil.checkInput(email)) {
 				Utente newUtente = new Utente(currentUtente.getIdUtente(), nome, cognome, cellulare, email, currentUtente.getPassword(), currentUtente.getRuolo());
 				if(equalsUtente(currentUtente, newUtente) != true) {
 					if((currentUtente.getEmail().equals(email) != true) && (currentUtente.getCellulare().equals(cellulare) != true)) {
