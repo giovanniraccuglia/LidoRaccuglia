@@ -45,7 +45,7 @@ public class SpiaggiaServlet extends HttpServlet {
 			if(LidoUtil.checkInput(data)) {
 				Date dataPrenotazione = Date.valueOf(data);
 				String time = "19:00:00";
-				if(dataPrenotazione.compareTo(Date.valueOf(LidoUtil.setDate(time))) == 0 || dataPrenotazione.after(Date.valueOf(LidoUtil.setDate(time)))) {
+				if(dataPrenotazione.compareTo(Date.valueOf(LidoUtil.getDateSpiaggia(time))) == 0 || dataPrenotazione.after(Date.valueOf(LidoUtil.getDateSpiaggia(time)))) {
 					List<Postazione> postazioniPrenotate = DBMS.getPostazioniPrenotate(dataPrenotazione);
 					List<Postazione> postazioni = DBMS.getPostazioni();
 					PrintWriter pr = response.getWriter();

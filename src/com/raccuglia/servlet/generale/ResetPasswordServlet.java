@@ -2,6 +2,7 @@ package com.raccuglia.servlet.generale;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -50,11 +51,18 @@ public class ResetPasswordServlet extends HttpServlet {
 			String status;
 			if(LidoUtil.checkInput(email)) {
 				if(DBMS.verificaUtente(email, "")) {
-					String password = LidoUtil.genPassword(5);
+					String password = LidoUtil.genPassword(8);
 					String oggetto = "RESET PASSWORD";
 					String messaggio = "Gentile Cliente, questa è la sua nuova password: '" + password + "'. Per ragioni di sicurezza è consigliabile cambiare la password dopo l'accesso.";
 					DBMS.resetPassword(email, password);
-					InvioEmail.sendEmail(email, messaggio, oggetto);
+					Thread th = new Thread(() -> {
+						try {
+							InvioEmail.sendEmail(email, messaggio, oggetto);
+						}catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						} 
+					});
+					th.start();
 					status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Password correttamente resettata.\"}";
 				}else {
 					status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account inesistente.\"}";

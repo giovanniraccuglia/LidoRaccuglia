@@ -16,7 +16,7 @@ $(document).ready(function () {
 
 });
 
-$(document).ajaxComplete(function () {
+$(document).ajaxSuccess(function () {
 	$('[data-toggle="popover"]').popover();
 });
 

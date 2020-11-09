@@ -2,6 +2,7 @@ package com.raccuglia.servlet.cliente;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class GestioneOrdineServlet extends HttpServlet {
 			PrintWriter pr = response.getWriter();
 			response.setContentType("application/json");
 			String status;
-			if(LidoUtil.checkDate("09:00:00", "19:00:00")) {
+			if(LidoUtil.checkDateOrdine("09:00:00", "19:00:00")) {
 				if(LidoUtil.checkInput(prodotti) && LidoUtil.checkInput(quantita)) {
 					String[] idProdotti = prodotti.split(",");
 					String[] quantitaProdotti = quantita.split(",");
@@ -77,7 +78,14 @@ public class GestioneOrdineServlet extends HttpServlet {
 						DBMS.inserisciOrdine(getTotale(prodottiSelezionati, quantitaProdottiSelezionati), idUtente, prodottiSelezionati, quantitaProdottiSelezionati);
 						String oggetto = "MARRAKECH BEACH";
 						String messaggio = "Gentile Cliente, La informiamo che il suo ordine è andato a buon fine. Le ricordiamo che nell'Area Clienti potrà visionare lo status del suo ordine.";
-						InvioEmail.sendEmail(email, messaggio, oggetto);
+						Thread th = new Thread(() -> {
+							try {
+								InvioEmail.sendEmail(email, messaggio, oggetto);
+							}catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+							} 
+						});
+						th.start();
 						status = "{\"ORDINATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Ordine effettuato correttamente.\"}";
 					}else {
 						status = "{\"ORDINATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Selezionare i prodotti correttamente.\"}";

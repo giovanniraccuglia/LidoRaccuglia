@@ -2,6 +2,7 @@ package com.raccuglia.servlet.generale;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -61,7 +62,14 @@ public class RegistrazioneServlet extends HttpServlet {
 						DBMS.registrazioneCliente(nome, cognome, cellulare, email.toLowerCase(), password);
 						String oggetto = "BENVENUTO A MARRAKECH BEACH";
 						String messaggio = "Gentile Cliente, Le comunichiamo che la registrazione del suo account è avvenuta con successo. Ti invitiamo a visitare il nostro sito per usufruire dei nostri servizi. Grazie, e a presto.";
-						InvioEmail.sendEmail(email, messaggio, oggetto);
+						Thread th = new Thread(() -> {
+							try {
+								InvioEmail.sendEmail(email, messaggio, oggetto);
+							}catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+							} 
+						});
+						th.start();
 						status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Account correttamente registrato.\"}";
 					}
 				}else {

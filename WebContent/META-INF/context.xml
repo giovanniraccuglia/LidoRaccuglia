@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/Raccuglia">
+<!DOCTYPE xml>
+<Context path="Raccuglia">
 	<Resource auth="Container"
 		driverClassName="com.mysql.cj.jdbc.Driver"
 		factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"

@@ -14,31 +14,27 @@ public class LidoUtil {
 			return false;
 	}
 	
-	public static String genPassword(int len) { //Soluzione provvisoria
+	public static String genPassword(int len) {
     	final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     	final String chars1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     	final String chars2 = "abcdefghijklmnopqrstuvwxyz";
     	final String chars3 = "0123456789";
     	SecureRandom random = new SecureRandom();
     	StringBuilder sb = new StringBuilder();
-    	for(int i = 0; i < len; i++) {
-    		int randomIndex = random.nextInt(chars.length());
-    		sb.append(chars.charAt(randomIndex));
+    	for(int i = 0; i < len-3; i++) {
+    		sb.append(chars.charAt(random.nextInt(chars.length())));
     	}
-    	int randomIndex1 = random.nextInt(chars1.length());
-    	int randomIndex2 = random.nextInt(chars2.length());
-    	int randomIndex3 = random.nextInt(chars3.length());
-		sb.append(chars1.charAt(randomIndex1));
-		sb.append(chars2.charAt(randomIndex2));
-		sb.append(chars3.charAt(randomIndex3));
+		sb.append(chars1.charAt(random.nextInt(chars1.length())));
+		sb.append(chars2.charAt(random.nextInt(chars2.length())));
+		sb.append(chars3.charAt(random.nextInt(chars3.length())));
     	return sb.toString();
     }
 	
-	public static String setDate(String time) {
+	public static String getDateSpiaggia(String time) {
 		Date today = new Date(System.currentTimeMillis());
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		int day = 86400000;
+		final long day = 86400000;
 		String result = null;
 		try {
 			if(today.after(sdf2.parse(sdf1.format(today) + " " + time))) {
@@ -55,7 +51,7 @@ public class LidoUtil {
 		return result;
 	}
 	
-	public static boolean checkDate(String start, String end) {
+	public static boolean checkDateOrdine(String start, String end) {
 		Date today = new Date(System.currentTimeMillis());
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

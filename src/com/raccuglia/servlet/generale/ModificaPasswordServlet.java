@@ -2,6 +2,7 @@ package com.raccuglia.servlet.generale;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -63,7 +64,14 @@ public class ModificaPasswordServlet extends HttpServlet {
 						String email = ((Utente) request.getSession().getAttribute("utente")).getEmail();
 						String oggetto = "MODIFICA PASSWORD MARRAKECH BEACH";
 						String messaggio = "Gentile Cliente, La informiamo che la modifica della sua password è avvenuta con successo.";
-						InvioEmail.sendEmail(email, messaggio, oggetto);
+						Thread th = new Thread(() -> {
+							try {
+								InvioEmail.sendEmail(email, messaggio, oggetto);
+							}catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+							} 
+						});
+						th.start();
 						status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Password aggiornata correttamente.\"}";
 					}else {
 						status = "{\"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Password errata.\"}";

@@ -2,6 +2,7 @@ package com.raccuglia.servlet.cliente;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -95,7 +96,14 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 						DBMS.deletePrenotazione(idUtente, idPrenotazione);
 						String oggetto = "MARRAKECH BEACH";
 						String messaggio = "Gentile Cliente, La informiamo che la sua prenotazione per la data: " + sdf.format(dataPrenotazione) + " è stata annullata con successo.";
-						InvioEmail.sendEmail(email, messaggio, oggetto);
+						Thread th = new Thread(() -> {
+							try {
+								InvioEmail.sendEmail(email, messaggio, oggetto);
+							}catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+							} 
+						});
+						th.start();
 						status = "{\"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Prenotazione annullata correttamente.\"}";
 					}
 				}else {
@@ -120,7 +128,7 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 			if(LidoUtil.checkInput(data) && LidoUtil.checkInput(postazioni)) {
 				Date dataPrenotazione = Date.valueOf(data);
 				String time = "13:00:00";
-				if(dataPrenotazione.compareTo(Date.valueOf(LidoUtil.setDate(time))) == 0 || dataPrenotazione.after(Date.valueOf(LidoUtil.setDate(time)))) {
+				if(dataPrenotazione.compareTo(Date.valueOf(LidoUtil.getDateSpiaggia(time))) == 0 || dataPrenotazione.after(Date.valueOf(LidoUtil.getDateSpiaggia(time)))) {
 					String[] idPostazioni = postazioni.split(",");
 					List<Postazione> postazioniSelezionate = new ArrayList<>();
 					for(int i = 0; i < idPostazioni.length; i++) {
@@ -134,7 +142,14 @@ public class GestionePrenotazioneServlet extends HttpServlet {
 						SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 						String oggetto = "MARRAKECH BEACH";
 						String messaggio = "Gentile Cliente, La informiamo che la sua prenotazione per la data: " + sdf.format(dataPrenotazione) + " è avvenuta con successo. Le auguriamo una buona permanenza in struttura.";
-						InvioEmail.sendEmail(email, messaggio, oggetto);
+						Thread th = new Thread(() -> {
+							try {
+								InvioEmail.sendEmail(email, messaggio, oggetto);
+							}catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+							} 
+						});
+						th.start();
 						status = "{\"PRENOTATO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Pronotazione effettuata correttamente.\"}";
 					}else {
 						status = "{\"PRENOTATO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Una o pi&ugrave; postazioni sono gi&agrave; prenotate.\"}";

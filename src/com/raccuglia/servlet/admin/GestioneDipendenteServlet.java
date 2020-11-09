@@ -2,6 +2,7 @@ package com.raccuglia.servlet.admin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -99,11 +100,18 @@ public class GestioneDipendenteServlet extends HttpServlet {
 				if(DBMS.verificaUtente(email, cellulare)) {
 					status = "{\"INSERIMENTO\" : \"false\", \"TYPE\" : \"Errore!\", \"NOTIFICATION\" : \"Account gi&agrave; presente.\"}";
 				}else {
-					String password = LidoUtil.genPassword(5);
+					String password = LidoUtil.genPassword(8);
 					String oggetto = "ACCOUNT AZIENDALE MARRAKECH BEACH";
 					String messaggio = "Benvenuto nella famiglia di Marrakech Beach, queste sono le tue credenziali per accedere al tuo account aziendale. Email: '" + email + "' - Password: '" + password + "'. Per ragioni di sicurezza è consigliabile cambiare la password dopo l'accesso.";
 					DBMS.registrazioneDipendente(nome, cognome, cellulare, email, password, ruolo);
-					InvioEmail.sendEmail(email, messaggio, oggetto);
+					Thread th = new Thread(() -> {
+						try {
+							InvioEmail.sendEmail(email, messaggio, oggetto);
+						}catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						} 
+					});
+					th.start();
 					status = "{\"INSERIMENTO\" : \"true\", \"TYPE\" : \"Successo!\", \"NOTIFICATION\" : \"Account registrato correttamente.\"}";
 				}
 			}else {
