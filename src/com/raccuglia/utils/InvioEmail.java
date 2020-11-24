@@ -10,8 +10,8 @@ import javax.mail.Session;
 public class InvioEmail {
 	//METODO PER L'INVIO AUTOMATICO DELL'EMAIL
 		public static void sendEmail(String mail ,String messaggio, String oggetto) throws UnsupportedEncodingException{  
-			final String fromEmail = "lido1mare@gmail.com"; //requires valid gmail id  //creare email personale 
-			final String passw = "13Qwerty13"; // correct password for gmail id
+			final String fromEmail = "prova@gmail.com"; //requires valid gmail id  //creare email personale 
+			final String passw = "prova"; // correct password for gmail id
 			final String toEmail = mail; // can be any email id 
 			
 			System.out.println("SSLEmail Start");
